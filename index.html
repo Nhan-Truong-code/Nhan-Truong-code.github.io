@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Internal Test</title>
+    <style>
+        /* === TỔNG QUAN === */
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 15px; 
+            background-color: #f0f2f5; color: #1c1e21; 
+        }
+        .container { 
+            max-width: 900px; margin: 0 auto; 
+            background: #fff; padding: 25px; 
+            border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        }
+        h1 { text-align: center; color: #1877f2; margin-bottom: 30px; }
+
+        /* === TRANG CHỦ (HOME PAGE) === */
+        .menu-section { margin-bottom: 35px; }
+        .menu-title { 
+            font-size: 1.3em; font-weight: 600; 
+            border-bottom: 2px solid #1877f2; padding-bottom: 10px; margin-bottom: 20px; 
+        }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 15px; }
+        .btn { 
+            padding: 15px 20px; border: none; border-radius: 8px; 
+            background: #1877f2; color: white; font-size: 1.05em; font-weight: 600;
+            cursor: pointer; transition: 0.2s; flex: 1; min-width: 150px; text-align: center; 
+        }
+        .btn:hover { background: #165eab; transform: translateY(-2px); }
+        .btn-full { background: #e41e3f; flex: 100%; }
+        .btn-full:hover { background: #b81430; }
+        .btn-disabled { background: #bcc0c4; cursor: not-allowed; }
+        .btn-disabled:hover { transform: none; background: #bcc0c4; }
+
+        /* === KHU VỰC LÀM BÀI (QUIZ AREA) === */
+        #quiz-area { display: none; }
+        .header-controls { 
+            display: flex; align-items: center; justify-content: space-between; 
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e4e6eb;
+        }
+        .back-btn { background: #606770; padding: 10px 20px; flex: none; min-width: auto; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;}
+        .back-btn:hover { background: #4b4f56; }
+        #quiz-title { margin: 0; font-size: 1.4em; color: #1c1e21; }
+
+        /* Khung chứa Đoạn văn (Part 6 & 7) */
+        .passage-container {
+            border: 2px solid #1877f2; border-radius: 10px; margin-bottom: 30px; 
+            background: #fff; overflow: hidden;
+        }
+        .passage-title {
+            background: #1877f2; color: white; padding: 12px 20px; font-weight: 600; font-size: 1.1em;
+        }
+        .passage-content {
+            padding: 20px; font-size: 1.1em; line-height: 1.7; background: #f8f9fa;
+            border-bottom: 2px dashed #ced0d4;
+        }
+        .passage-content table {
+            width: 100%; border-collapse: collapse; margin: 15px 0; background: #fff;
+        }
+        .passage-content th, .passage-content td {
+            border: 1px solid #ced0d4; padding: 10px; text-align: left;
+        }
+        .passage-questions { padding: 20px; }
+
+        /* Giao diện Thẻ câu hỏi */
+        .question-card { 
+            border: 1px solid #ced0d4; padding: 20px; margin-bottom: 20px; 
+            border-radius: 10px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .question-text { font-size: 1.15em; margin-bottom: 18px; line-height: 1.5; font-weight: 500;}
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* CSS cho nút đáp án & Highlight chấm điểm */
+        .option-label { 
+            padding: 14px 18px; background: #f0f2f5; border: 1px solid transparent; 
+            border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 1em; display: block;
+        }
+        .option-label:hover:not(.disabled) { background: #e7f3ff; border-color: #1877f2; }
+        input[type="radio"] { margin-right: 12px; transform: scale(1.2); cursor: pointer; }
+        
+        /* CSS khi nộp bài */
+        .option-label.disabled { pointer-events: none; } 
+        .option-label.correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
+        .option-label.wrong { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; text-decoration: line-through;}
+
+        /* Nút Submit */
+        .submit-section { text-align: center; margin-top: 30px; margin-bottom: 50px; }
+        .submit-btn { background: #27ae60; padding: 15px 40px; font-size: 1.2em; border-radius: 8px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        .submit-btn:hover { background: #219150; }
+
+	/* Tối ưu khu vực nút bấm ở cuối trang */
+	.bottom-controls {
+    		display: flex;
+    		justify-content: center;
+    		align-items: center;
+    		gap: 15px; /* Khoảng cách giữa các nút */
+    		margin-bottom: 20px;
+    		flex-wrap: wrap; /* Tự xuống dòng nếu màn hình điện thoại quá nhỏ */
+	}
+
+	.back-btn-bottom { background: #606770; flex: 0 1 auto !important; min-width: 140px !important; }
+	.reset-btn { background: #f39c12; color: white; flex: 0 1 auto !important; min-width: 140px !important; }
+	.reset-btn:hover { background: #e67e22; transform: translateY(-2px); }
+
+	/* Đảm bảo điểm số hiện bên dưới các nút */
+	#score-display { 
+    		font-size: 1.4em; 
+    		margin-top: 20px; 
+    		padding: 15px;
+    		border-top: 1px solid #ddd;
+	} 
+
+        /* Nút Dịch & Text Dịch */
+        .translate-btn { 
+            background: none; border: none; color: #00a8ff; cursor: pointer; 
+            font-size: 0.95em; font-weight: 600; padding: 0; margin-top: 18px; 
+            display: inline-flex; align-items: center; gap: 6px; 
+        }
+        .translate-btn:hover { text-decoration: underline; color: #0097e6; }
+        .translation-text { 
+            display: none; color: #2f3640; margin-top: 12px; font-size: 1em; 
+            padding: 15px; background: #f5f6fa; border-left: 4px solid #00a8ff;
+            border-radius: 0 8px 8px 0; line-height: 1.5;
+        }
+        .translation-text.active { display: block; animation: fadeIn 0.3s ease; }
+        .trans-q { font-weight: 600; margin-bottom: 8px; color: #c23616; }
+        .trans-opt { margin-bottom: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 600px) { .header-controls { flex-direction: column; align-items: flex-start; gap: 15px; } .btn { min-width: 100%; } }
+
+	/* === CUSTOM MODAL === */
+	.modal-overlay {
+    		position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    		background: rgba(0, 0, 0, 0.6); /* Nền đen mờ */
+    		display: flex; justify-content: center; align-items: center;
+    		z-index: 9999; /* Luôn nổi lên trên cùng */
+	}
+
+	.modal-content {
+    		background: #fff; padding: 25px 20px; border-radius: 12px;
+    		width: 90%; max-width: 400px; text-align: center;
+    		box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    		animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng nảy nhẹ */
+	}
+
+	.modal-content h3 { margin-top: 0; color: #1877f2; font-size: 1.5em; }
+	.modal-message { font-size: 1.1em; line-height: 1.5; color: #1c1e21; margin-bottom: 25px;}
+
+	.modal-actions { display: flex; justify-content: center; gap: 15px; }
+	.btn-cancel { background: #e4e6eb; color: #050505; flex: 1; }
+	.btn-cancel:hover { background: #d8dadf; }
+	.btn-confirm { background: #1877f2; color: #fff; flex: 1; }
+
+	@keyframes popIn {
+    		from { transform: scale(0.8); opacity: 0; }
+    		to { transform: scale(1); opacity: 1; }
+	}
+
+	/* === ĐỒNG HỒ BẤM GIỜ === */
+	/* === ĐỒNG HỒ BẤM GIỜ TRÔI NỔI (FLOATING TIMER) === */
+	#countdown-timer {
+    		font-size: 1.2em; 
+    		font-weight: bold; 
+    		color: #e41e3f;
+    		background: rgba(255, 235, 238, 0.9); /* Làm nền hơi trong suốt xíu */
+    		padding: 10px 20px; 
+    		border-radius: 30px; /* Bo tròn xịn xò như viên thuốc */
+    		border: 2px solid #ffcdd2;
+    		box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Thêm bóng đổ cho nổi bật */
+    		backdrop-filter: blur(5px); /* Hiệu ứng kính mờ chuẩn iOS */
+    
+    		display: flex; 
+    		align-items: center; 
+    		gap: 8px;
+    
+    		/* Phép thuật bám dính ở đây nè fen */
+    		position: fixed;
+    		top: 20px;
+    		right: 20px;
+    		z-index: 1000; /* Đảm bảo nó luôn nằm trên cùng, không bị chữ đè lên */
+	}
+
+	/* Hiệu ứng chớp tắt khi sắp hết giờ */
+	.time-warning { 
+    		animation: blink 1s infinite; 
+    		color: #fff !important; 
+    		background: rgba(192, 57, 43, 0.9) !important; /* Đổi nền sang đỏ rực luôn cho báo động */
+    		border-color: #c0392b !important;
+	}
+	@keyframes blink { 50% { opacity: 0.7; transform: scale(1.05); } }
+
+	/* Tối ưu riêng cho Mobile (Màn hình nhỏ) */
+	@media (max-width: 600px) {
+   		 #countdown-timer {
+        		top: auto;
+        		bottom: 25px;
+        		right: 15px;
+        		font-size: 1.1em;
+        		padding: 8px 15px;
+    		}
+            .header-controls { flex-direction: column; align-items: flex-start; gap: 15px; } 
+            .btn { min-width: 100%; } 
+
+            /* 👇 THÊM ĐOẠN NÀY ĐỂ FIX LỖI TRÀN NÚT POPUP 👇 */
+            .modal-actions .btn {
+                min-width: 0 !important; /* Ép nó không được bung 100% nữa */
+            }
+	}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="home-page">
+            <h1>English Internal Test 🚀</h1>
+            <div class="menu-section">
+                <div class="menu-title">📚 Reading Revision</div>
+                <div class="btn-group">
+                    <button class="btn" onclick="startQuiz('part5')">Part 5 (Q1-30)</button>
+                    <button class="btn" onclick="startQuiz('part6')">Part 6 (Q31-46)</button>
+                    <button class="btn" onclick="startQuiz('part7')">Part 7 (Q47-100)</button>
+                    <button class="btn btn-full" onclick="startQuiz('full')">🔥 Do Full Reading Test</button>	
+                </div>
+            </div>
+	    <div class="menu-section">
+                <div class="menu-title">🎧 Listening Revision</div>
+                <div class="btn-group">
+                    <button class="btn" onclick="startQuiz('part1')">Part 1 (Q1-6)</button>
+                    <button class="btn" onclick="startQuiz('part2')">Part 2 (Q7-31)</button>
+                    <button class="btn" onclick="startQuiz('part3')">Part 3 (Q32-70)</button>
+                    <button class="btn" onclick="startQuiz('part4')">Part 4 (Q71-100)</button>
+                    <button class="btn btn-full" onclick="startQuiz('full_listening')">🔥 Do Full Listening Test</button>	
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-area">
+            <div class="header-controls">
+                <button class="btn back-btn" onclick="goHome()">⬅ Trang chủ</button>
+                <h2 id="quiz-title">Quiz Title</h2>
+		<div id="countdown-timer" style="display: none;">⏳ 75:00</div>
+            </div>
+
+	    <div id="audio-container" style="display: none; position: sticky; top: 0; background: #fff; padding: 15px 10px; border-bottom: 2px solid #1877f2; z-index: 1000; text-align: 																	center; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+                <audio id="quiz-audio" controls style="width: 100%; max-width: 600px; height: 40px;">
+                    <source id="audio-source" src="" type="audio/mpeg">
+                    Trình duyệt của fen không hỗ trợ thẻ audio.
+                </audio>
+            </div>
+            
+            <div id="questions-container"></div>
+            
+            <div class="submit-section" id="submit-section" style="display: none;">
+    		<div class="bottom-controls">
+        		<button class="btn back-btn-bottom" onclick="goHome()">⬅ Trang chủ</button>
+        
+        		<button class="submit-btn" id="btn-submit" onclick="submitQuiz()">Nộp bài ngay📝</button>
+        
+        		<button class="btn reset-btn" id="btn-reset" onclick="resetQuiz()" style="display: none;">Làm lại 🔄</button>
+    		</div>
+    
+    		<div id="score-display"></div>
+		</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // DATA PART 5 (Câu 1 - 30) 
+        // ==========================================
+        const part5Data = [
+            { id: 1, q: "1. Business owners in the town have been --- to keep their shop open after 7 P.M.", opts: ["(A) optimal", "(B) reluctant", "(C) elaborate", "(D) preferable"], ans: 1, t_q: "Các chủ doanh nghiệp trong thị trấn đã tỏ ra --- trong việc giữ cửa hàng của họ mở cửa sau 7 giờ tối.", t_opts: ["(A) tối ưu", "(B) miễn cưỡng", "(C) tỉ mỉ", "(D) thích hợp hơn"] },
+            { id: 2, q: "2. The municipal government has promised that it will take --- to reduce downtown traffic.", opts: ["(A) acting", "(B) action", "(C) activation", "(D) activists"], ans: 1, t_q: "Chính quyền thành phố đã hứa rằng họ sẽ thực hiện --- để giảm bớt giao thông trung tâm thành phố.", t_opts: ["(A) diễn xuất", "(B) hành động", "(C) sự kích hoạt", "(D) nhà hoạt động"] },
+            { id: 3, q: "3. For the next group project, students are free to team up with --- they want.", opts: ["(A) whomever", "(B) which", "(C) however", "(D) whatever"], ans: 0, t_q: "Đối với dự án nhóm tiếp theo, sinh viên được tự do lập nhóm với --- mà họ muốn.", t_opts: ["(A) bất cứ ai", "(B) cái nào", "(C) tuy nhiên", "(D) bất cứ điều gì"] },
+            { id: 4, q: "4. By this time next year, Grasswell Industries --- two new plants in eastern Europe.", opts: ["(A) opens", "(B) will have opened", "(C) is opening", "(D) had opened"], ans: 1, t_q: "Vào thời điểm này năm sau, Grasswell Industries --- hai nhà máy mới ở Đông Âu.", t_opts: ["(A) mở", "(B) sẽ mở xong", "(C) đang mở", "(D) đã mở"] },
+            { id: 5, q: "5. Ms. Conner did not win the Employee of the Year Award because a colleague's sales record was better than ---", opts: ["(A) hers", "(B) herself", "(C) her", "(D) she"], ans: 0, t_q: "Cô Conner không giành được Giải thưởng Nhân viên của năm vì kỷ lục doanh số của một đồng nghiệp tốt hơn của ---", t_opts: ["(A) cô ấy (đại từ sở hữu)", "(B) chính cô ấy", "(C) của cô ấy", "(D) cô ấy"] },
+            { id: 6, q: "6. The Villier Resort struggles to attract visitors these days, but it was --- a very popular vacation destination.", opts: ["(A) about", "(B) once", "(C) last", "(D) as"], ans: 1, t_q: "Khu nghỉ dưỡng Villier ngày nay đang chật vật thu hút du khách, nhưng nó --- là một điểm đến kỳ nghỉ rất nổi tiếng.", t_opts: ["(A) khoảng", "(B) đã từng", "(C) cuối cùng", "(D) như"] },
+            { id: 7, q: "7. --- at work frequently is unprofessional, and it also makes coworkers feel uncomfortable.", opts: ["(A) Complained", "(B) Complaint", "(C) Complain", "(D) Complaining"], ans: 3, t_q: "--- tại nơi làm việc thường xuyên là thiếu chuyên nghiệp, và nó cũng khiến đồng nghiệp cảm thấy không thoải mái.", t_opts: ["(A) Đã phàn nàn", "(B) Lời phàn nàn", "(C) Phàn nàn", "(D) Việc phàn nàn"] },
+            { id: 8, q: "8. Everyone at yesterday's seminar --- to put their electronic devices in silent mode.", opts: ["(A) asking", "(B) was asked", "(C) is asked", "(D) would ask"], ans: 1, t_q: "Mọi người tại buổi hội thảo hôm qua --- đặt thiết bị điện tử của họ ở chế độ im lặng.", t_opts: ["(A) yêu cầu", "(B) đã được yêu cầu", "(C) được yêu cầu", "(D) sẽ yêu cầu"] },
+            { id: 9, q: "9. Increased global demand has led to a --- of dairy products, causing prices to rise substantially.", opts: ["(A) distress", "(B) balance", "(C) shortage", "(D) distribution"], ans: 2, t_q: "Nhu cầu toàn cầu tăng cao đã dẫn đến một --- các sản phẩm sữa, khiến giá cả tăng đáng kể.", t_opts: ["(A) phiền muộn", "(B) sự cân bằng", "(C) sự thiếu hụt", "(D) sự phân phối"] },
+            { id: 10, q: "10. The Pangea Company will send --- an email confirming receipt of the application.", opts: ["(A) you", "(B) yourselves", "(C) yourself", "(D) your"], ans: 0, t_q: "Công ty Pangea sẽ gửi cho --- một email xác nhận đã nhận được đơn đăng ký.", t_opts: ["(A) bạn", "(B) chính các bạn", "(C) chính bạn", "(D) của bạn"] },
+            { id: 11, q: "11. As a branch manager, Mr. Finley finds resolving staff conflicts --- of his duties.", opts: ["(A) difficult", "(B) more difficult", "(C) the most difficult", "(D) difficulty"], ans: 2, t_q: "Với tư cách là giám đốc chi nhánh, ông Finley nhận thấy việc giải quyết xung đột nhân viên là --- trong các nhiệm vụ của ông.", t_opts: ["(A) khó", "(B) khó hơn", "(C) khó nhất", "(D) sự khó khăn"] },
+            { id: 12, q: "12. New recruits are required to join a training course --- if they have relevant work experience.", opts: ["(A) in spite of", "(B) even", "(C) separately", "(D) commonly"], ans: 1, t_q: "Tân binh bắt buộc phải tham gia khóa đào tạo --- nếu họ đã có kinh nghiệm làm việc liên quan.", t_opts: ["(A) mặc dù", "(B) ngay cả (nếu)", "(C) riêng biệt", "(D) thông thường"] },
+            { id: 13, q: "13. Makadamia Cakes' staff handed out --- samples of baked goods to celebrate the grand opening.", opts: ["(A) decisive", "(B) complimentary", "(C) hopeful", "(D) intensive"], ans: 1, t_q: "Nhân viên của Makadamia Cakes đã phát các mẫu bánh nướng --- để kỷ niệm ngày khai trương.", t_opts: ["(A) kiên quyết", "(B) miễn phí", "(C) hy vọng", "(D) chuyên sâu"] },
+            { id: 14, q: "14. The job duties of an editor consist of checking for spelling and grammar errors and verifying that information is --- accurate.", opts: ["(A) factual", "(B) fact", "(C) factuality", "(D) factually"], ans: 3, t_q: "Nhiệm vụ công việc của một biên tập viên bao gồm kiểm tra lỗi chính tả và ngữ pháp và xác minh rằng thông tin chính xác một cách ---.", t_opts: ["(A) thuộc về sự thật", "(B) sự thật", "(C) tính xác thực", "(D) dựa trên sự thật"] },
+            { id: 15, q: "15. Many fashion stylists --- their online portfolios on a regular basis.", opts: ["(A) dress", "(B) invite", "(C) range", "(D) update"], ans: 3, t_q: "Nhiều nhà tạo mẫu thời trang --- hồ sơ trực tuyến của họ một cách thường xuyên.", t_opts: ["(A) mặc", "(B) mời", "(C) dao động", "(D) cập nhật"] },
+            { id: 16, q: "16. The script for the film adaptation of the best-selling novel Vaunted was taken --- from the book.", opts: ["(A) directly", "(B) direction", "(C) directing", "(D) director"], ans: 0, t_q: "Kịch bản cho bộ phim chuyển thể từ tiểu thuyết bán chạy nhất Vaunted được lấy --- từ cuốn sách.", t_opts: ["(A) một cách trực tiếp", "(B) hướng", "(C) việc chỉ đạo", "(D) đạo diễn"] },
+            { id: 17, q: "17. Bentoc Shoes has a loyal customer base --- it provides high quality service.", opts: ["(A) rather", "(B) because", "(C) not only", "(D) as well"], ans: 1, t_q: "Giày Bentoc có lượng khách hàng trung thành --- nó cung cấp dịch vụ chất lượng cao.", t_opts: ["(A) khá/hơn là", "(B) bởi vì", "(C) không chỉ", "(D) cũng như"] },
+            { id: 18, q: "18. Although Mr. Miller had been given clear directions to the conference venue, he drove right --- it.", opts: ["(A) toward", "(B) over", "(C) past", "(D) out"], ans: 2, t_q: "Mặc dù ông Miller đã được chỉ dẫn rõ ràng đến địa điểm tổ chức hội nghị, ông ấy lại lái xe --- qua nó.", t_opts: ["(A) về phía", "(B) qua/trên", "(C) vượt qua", "(D) ra ngoài"] },
+            { id: 19, q: "19. Under the close --- of the museum staff, it was discovered that the painting was actually a forgery.", opts: ["(A) observe", "(B) observation", "(C) observance", "(D) observing"], ans: 1, t_q: "Dưới sự --- chặt chẽ của nhân viên bảo tàng, người ta phát hiện ra rằng bức tranh thực sự là đồ giả.", t_opts: ["(A) quan sát (động từ)", "(B) sự quan sát", "(C) sự tuân thủ", "(D) đang quan sát"] },
+            { id: 20, q: "20. The bank's loan officer determined how much money Ms. Demers would be eligible to --- for her new home.", opts: ["(A) purchase", "(B) borrow", "(C) earn", "(D) donate"], ans: 1, t_q: "Nhân viên cho vay của ngân hàng đã xác định số tiền mà cô Demers đủ điều kiện để --- cho ngôi nhà mới của mình.", t_opts: ["(A) mua", "(B) mượn/vay", "(C) kiếm được", "(D) quyên góp"] },
+            { id: 21, q: "21. Kennedy Sports will --- its end-of-season sale through the month of January.", opts: ["(A) continuing", "(B) continues", "(C) continue", "(D) continued"], ans: 2, t_q: "Kennedy Sports sẽ --- đợt giảm giá cuối mùa của mình cho đến hết tháng Giêng.", t_opts: ["(A) đang tiếp tục", "(B) tiếp tục (ngôi 3 số ít)", "(C) tiếp tục (nguyên thể)", "(D) đã tiếp tục"] },
+            { id: 22, q: "22. Ms. Ortega --- a financial advisor to seek help with her investment portfolio.", opts: ["(A) consulting", "(B) consultation", "(C) consulted", "(D) consulter"], ans: 2, t_q: "Cô Ortega --- một cố vấn tài chính để tìm kiếm sự giúp đỡ cho danh mục đầu tư của mình.", t_opts: ["(A) đang tham khảo", "(B) sự tham khảo", "(C) đã tham khảo", "(D) người tham khảo"] },
+            { id: 23, q: "23. Glass containers must be --- secured during transport.", opts: ["(A) safe", "(B) safely", "(C) safety", "(D) safer"], ans: 1, t_q: "Các hộp đựng bằng kính phải được cố định một cách --- trong quá trình vận chuyển.", t_opts: ["(A) an toàn (tính từ)", "(B) an toàn (trạng từ)", "(C) sự an toàn", "(D) an toàn hơn"] },
+            { id: 24, q: "24. A photography exhibition entitled The Awakening is currently --- in the Pulsen Gallery's main hall.", opts: ["(A) expressed", "(B) transformed", "(C) displayed", "(D) reflected"], ans: 2, t_q: "Một triển lãm nhiếp ảnh có tựa đề The Awakening hiện đang được --- tại sảnh chính của Phòng trưng bày Pulsen.", t_opts: ["(A) bày tỏ", "(B) biến đổi", "(C) trưng bày", "(D) phản chiếu"] },
+            { id: 25, q: "25. Over the years, Garnet Advertising has --- supported its employees' volunteer work for charitable organizations.", opts: ["(A) currently", "(B) upwardly", "(C) severely", "(D) actively"], ans: 3, t_q: "Trong những năm qua, Garnet Advertising đã --- hỗ trợ công việc tình nguyện của nhân viên cho các tổ chức từ thiện.", t_opts: ["(A) hiện tại", "(B) hướng lên", "(C) nghiêm trọng", "(D) tích cực"] },
+            { id: 26, q: "26. Ms. Garcia was delighted to receive --- that her company soon will be featured in the In Town Times magazine.", opts: ["(A) notify", "(B) notification", "(C) notifying", "(D) notifies"], ans: 1, t_q: "Cô Garcia rất vui mừng khi nhận được --- rằng công ty của cô sẽ sớm được giới thiệu trên tạp chí In Town Times.", t_opts: ["(A) thông báo (động từ)", "(B) sự thông báo", "(C) đang thông báo", "(D) thông báo (ngôi 3 số ít)"] },
+            { id: 27, q: "27. Ms. Diaz will be able to attend the conference --- her train arrives on time.", opts: ["(A) as long as", "(B) otherwise", "(C) as a result of", "(D) by means of"], ans: 0, t_q: "Cô Diaz sẽ có thể tham dự hội nghị --- chuyến tàu của cô ấy đến đúng giờ.", t_opts: ["(A) miễn là", "(B) nếu không thì", "(C) như là kết quả của", "(D) bằng phương tiện"] },
+            { id: 28, q: "28. To --- that its facilities are cleaned every day, the Selboa Company has hired more janitors.", opts: ["(A) affect", "(B) ensure", "(C) provide", "(D) secure"], ans: 1, t_q: "Để --- rằng các cơ sở của mình được dọn dẹp hàng ngày, Công ty Selboa đã thuê thêm lao công.", t_opts: ["(A) ảnh hưởng", "(B) đảm bảo", "(C) cung cấp", "(D) bảo vệ an toàn"] },
+            { id: 29, q: "29. The head chef of a restaurant takes care of a --- of tasks, including menu planning.", opts: ["(A) condition", "(B) variety", "(C) notification", "(D) renewal"], ans: 1, t_q: "Bếp trưởng của một nhà hàng đảm nhiệm một --- các nhiệm vụ, bao gồm cả việc lên kế hoạch thực đơn.", t_opts: ["(A) điều kiện", "(B) sự đa dạng", "(C) thông báo", "(D) sự gia hạn"] },
+            { id: 30, q: "30. Mr. Louden was offered a full-time position at Fortelio Corporation --- a division manager.", opts: ["(A) about", "(B) around", "(C) after", "(D) as"], ans: 3, t_q: "Ông Louden đã được mời làm việc toàn thời gian tại Fortelio Corporation --- một giám đốc bộ phận.", t_opts: ["(A) về", "(B) xung quanh", "(C) sau khi", "(D) với tư cách là"] }
+        ];
+
+        // ==========================================
+        // DATA PART 6 (Câu 31 - 46) - Cấu trúc có Passage (Đoạn văn)
+        // ==========================================
+        const part6Data = [
+            {
+                title: "Questions 31-34 refer to the following e-mail.",
+                content: `<p>Dear Ms. Churchill,</p><p>Thank you for the e-mail that you sent on January 15. I am happy to tell you that your camera is still <b>-31-</b> warranty and will be replaced free of charge. <b>-32-</b> Please fill out the form carefully and <b>-33-</b> the problems you experienced in detail. We try to process all exchanges quickly, but please allow 5-7 business days after the <b>-34-</b> of your camera for processing.</p><p>I apologize for the inconvenience you experienced and value your feedback. Please let me know if I can be of further assistance.</p><p>Louis Quartz<br>Manager, Ricon Camera</p>`,
+                questions: [
+                    { id: 31, q: "31.", opts: ["(A) behind", "(B) for", "(C) under", "(D) with"], ans: 2, t_q: "31. Chọn từ thích hợp điền vào vị trí -31-", t_opts: ["(A) đằng sau", "(B) cho", "(C) dưới (trong thời gian bảo hành)", "(D) với"] },
+                    { id: 32, q: "32.", opts: ["(A) You have to include your e-mail address when buying items online.", "(B) Please explain why you were unable to fix it yourself.", "(C) The model you purchased doesn't include shipping charges.", "(D) I have enclosed an exchange form and a shipping label."], ans: 3, t_q: "32. Chọn câu thích hợp điền vào vị trí -32-", t_opts: ["(A) Bạn phải bao gồm địa chỉ email khi mua hàng trực tuyến.", "(B) Vui lòng giải thích lý do tại sao bạn không thể tự sửa nó.", "(C) Mẫu bạn đã mua không bao gồm phí vận chuyển.", "(D) Tôi đã đính kèm một biểu mẫu trao đổi và một nhãn vận chuyển."] },
+                    { id: 33, q: "33.", opts: ["(A) inform", "(B) note", "(C) perceive", "(D) send"], ans: 1, t_q: "33. Chọn từ thích hợp điền vào vị trí -33-", t_opts: ["(A) thông báo", "(B) ghi chú", "(C) nhận thức", "(D) gửi"] },
+                    { id: 34, q: "34.", opts: ["(A) receiving", "(B) receives", "(C) receiver", "(D) receipt"], ans: 3, t_q: "34. Chọn từ thích hợp điền vào vị trí -34-", t_opts: ["(A) việc nhận (động từ V-ing)", "(B) nhận (ngôi 3 số ít)", "(C) người nhận", "(D) biên lai/việc nhận (danh từ)"] }
+                ]
+            },
+            {
+                title: "Questions 35-38 refer to the following advertisement.",
+                content: `<p>Global Artists would like to announce the opening of their first show in Western Africa. The opening reception <b>-35-</b> at the town hall in Accra, Ghana, on May 17 at 5:00 P.M. Several internationally known artists, as well as students from the region's high schools and universities, are participating.</p><p>The event will include a silent auction <b>-36-</b> will end a week later. <b>-37-</b>. There is no need to buy a ticket, but there is a requested donation of $25. VIP passes are available on the Global Artists Website and include meeting and greeting with several of the <b>-38-</b> artists.</p>`,
+                questions: [
+                    { id: 35, q: "35.", opts: ["(A) will be held", "(B) holds", "(C) held", "(D) has been held"], ans: 0, t_q: "35. Chọn từ thích hợp điền vào vị trí -35-", t_opts: ["(A) sẽ được tổ chức", "(B) tổ chức", "(C) đã tổ chức", "(D) đã được tổ chức"] },
+                    { id: 36, q: "36.", opts: ["(A) where", "(B) whose", "(C) whom", "(D) that"], ans: 3, t_q: "36. Chọn từ thích hợp điền vào vị trí -36-", t_opts: ["(A) nơi mà", "(B) của ai", "(C) người mà", "(D) cái mà"] },
+                    { id: 37, q: "37.", opts: ["(A) Participating students must participate in the auction.", "(B) The town hall will be renovated for future uses.", "(C) During the evening, local musicians will provide entertainment.", "(D) Our Website is currently unavailable due to the update."], ans: 2, t_q: "37. Chọn câu thích hợp điền vào vị trí -37-", t_opts: ["(A) Sinh viên tham gia phải tham gia đấu giá.", "(B) Tòa thị chính sẽ được cải tạo cho các mục đích sử dụng trong tương lai.", "(C) Trong suốt buổi tối, các nhạc sĩ địa phương sẽ cung cấp chương trình giải trí.", "(D) Trang web của chúng tôi hiện không khả dụng do cập nhật."] },
+                    { id: 38, q: "38.", opts: ["(A) featuring", "(B) featured", "(C) features", "(D) to be featured"], ans: 1, t_q: "38. Chọn từ thích hợp điền vào vị trí -38-", t_opts: ["(A) đang nổi bật", "(B) được nêu bật/đóng vai trò chính", "(C) đặc điểm", "(D) để được nổi bật"] }
+                ]
+            },
+            {
+                title: "Questions 39-42 refer to the following instructions.",
+                content: `<p>Thank you for your purchase of an Ajaz Water Filter Pitcher. It is a wonderful solution for water that tastes great!</p><p>To improve the effectiveness of the Ajaz Water Filter Pitcher, we <b>-39-</b> priming the filter before the first use. <b>-40-</b>. Then screw the filter clockwise into the lid of the pitcher until it fits <b>-41-</b>.</p><p>As you use the pitcher, remember that <b>-42-</b> water flow is a signal that the filter is becoming clogged and will need to be replaced soon.</p>`,
+                questions: [
+                    { id: 39, q: "39.", opts: ["(A) tried", "(B) recommend", "(C) consider", "(D) started"], ans: 1, t_q: "39. Chọn từ thích hợp điền vào vị trí -39-", t_opts: ["(A) đã thử", "(B) khuyên/đề xuất", "(C) xem xét", "(D) đã bắt đầu"] },
+                    { id: 40, q: "40.", opts: ["(A) Our filtration system will be redesigned within the next year.", "(B) Water use may be reduced by running your dishwasher less frequently.", "(C) To do this, run cool tap water through the filter for three minutes.", "(D) There are 150 liters of water in the main storage tank at all times."], ans: 2, t_q: "40. Chọn câu thích hợp điền vào vị trí -40-", t_opts: ["(A) Hệ thống lọc của chúng tôi sẽ được thiết kế lại trong vòng năm tới.", "(B) Lượng nước sử dụng có thể giảm bằng cách chạy máy rửa bát ít thường xuyên hơn.", "(C) Để làm điều này, hãy xả nước máy mát qua bộ lọc trong ba phút.", "(D) Luôn có 150 lít nước trong bể chứa chính."] },
+                    { id: 41, q: "41.", opts: ["(A) extremely", "(B) steadily", "(C) highly", "(D) tightly"], ans: 3, t_q: "41. Chọn từ thích hợp điền vào vị trí -41-", t_opts: ["(A) vô cùng", "(B) đều đặn", "(C) rất", "(D) chặt chẽ"] },
+                    { id: 42, q: "42.", opts: ["(A) diminished", "(B) diminishes", "(C) diminish", "(D) diminishable"], ans: 0, t_q: "42. Chọn từ thích hợp điền vào vị trí -42-", t_opts: ["(A) bị giảm sút", "(B) làm giảm (ngôi 3 số ít)", "(C) làm giảm (nguyên mẫu)", "(D) có thể giảm được"] }
+                ]
+            },
+            {
+                title: "Questions 43-46 refer to the following article.",
+                content: `<p>Colorado (March 15) - Race for Health, a national health awareness program, organized a fundraising marathon in Colorado last weekend. <b>-43-</b>. National corporations with branches in Baltimore also got involved by <b>-44-</b> more than 200 teams.</p><p>The largest sponsorship came from the oil giant PetroTech, which sponsored 72 small teams and had over 100 runners on its own team. In all, the company donated <b>-45-</b> $250,000. Colorado's race was Race for Health's most successful this year. A <b>-46-</b> for the organization said that Colorado will be rewarded by hosting the inaugural race next year.</p>`,
+                questions: [
+                    { id: 43, q: "43.", opts: ["(A) Many health experts advise marathoners to get sufficient rest after the competition.", "(B) Colorado has many branches of international health organizations.", "(C) Severe traffic congestion is expected on the date of the event.", "(D) The race was supported by the mayor, city council, and several community leaders."], ans: 3, t_q: "43. Chọn câu thích hợp điền vào vị trí -43-", t_opts: ["(A) Nhiều chuyên gia y tế khuyên những người chạy marathon nên nghỉ ngơi đầy đủ sau cuộc thi.", "(B) Colorado có nhiều chi nhánh của các tổ chức y tế quốc tế.", "(C) Dự kiến sẽ có tắc nghẽn giao thông nghiêm trọng vào ngày diễn ra sự kiện.", "(D) Cuộc đua được hỗ trợ bởi thị trưởng, hội đồng thành phố và một số lãnh đạo cộng đồng."] },
+                    { id: 44, q: "44.", opts: ["(A) sponsored", "(B) sponsoring", "(C) sponsors", "(D) sponsor"], ans: 1, t_q: "44. Chọn từ thích hợp điền vào vị trí -44-", t_opts: ["(A) đã tài trợ", "(B) việc tài trợ", "(C) các nhà tài trợ", "(D) tài trợ"] },
+                    { id: 45, q: "45.", opts: ["(A) equally", "(B) unusually", "(C) approximately", "(D) hugely"], ans: 2, t_q: "45. Chọn từ thích hợp điền vào vị trí -45-", t_opts: ["(A) bằng nhau", "(B) bất thường", "(C) xấp xỉ", "(D) to lớn"] },
+                    { id: 46, q: "46.", opts: ["(A) client", "(B) spokesperson", "(C) forecaster", "(D) detective"], ans: 1, t_q: "46. Chọn từ thích hợp điền vào vị trí -46-", t_opts: ["(A) khách hàng", "(B) người phát ngôn", "(C) người dự báo", "(D) thám tử"] }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // DATA PART 7 (Câu 47 - 100) 
+        // ==========================================
+        const part7Data = [
+            {
+                title: "Questions 47-48 refer to the following text-message chain.",
+                content: `
+                    <div style="background:#eef2f3; padding: 15px; border-radius: 8px; max-width: 400px; margin: 0 auto; font-family: monospace;">
+                        <p><b>Eric Ozawa (12:06 P.M.)</b><br>Hi Kara. I wanted to let you know that my train is going to be late.</p>
+                        <p><b>Kara Murato (12:10 P.M.)</b><br>Oh, that's too bad. Will you make it to the 3:00 meeting?</p>
+                        <p><b>Eric Ozawa (12:11 P.M.)</b><br>I'm not sure. The conductor thinks it will be at least another hour before we leave.</p>
+                        <p><b>Kara Murato (12:12 P.M.)</b><br>Should we postpone the meeting?</p>
+                        <p><b>Eric Ozawa (12:14 P.M.)</b><br>I think you should get started. The plans for the new hospital wing are on my desk. You know everything about the changes to the original design. You can call me if the client has any questions that you are unable to answer.</p>
+                        <p><b>Kara Murato (12:15 P.M.)</b><br>Sounds good. Let me know when you have an update on your arrival time.</p>
+                        <p><b>Eric Ozawa (12:16 P.M.)</b><br>Sure. Thanks.</p>
+                    </div>
+                `,
+                questions: [
+                    { id: 47, q: "47. Why does Mr. Ozawa contact Ms. Murato?", opts: ["(A) To introduce her to a new client.", "(B) To inform her of a delay.", "(C) To ask her to book a train ticket.", "(D) To thank her for changing a project's deadline."], ans: 1, t_q: "47. Tại sao ông Ozawa liên lạc với cô Murato?", t_opts: ["(A) Để giới thiệu cô ấy với một khách hàng mới.", "(B) Để thông báo cho cô ấy về sự chậm trễ.", "(C) Để yêu cầu cô ấy đặt vé tàu.", "(D) Để cảm ơn cô ấy vì đã thay đổi thời hạn dự án."] },
+                    { id: 48, q: "48. At 12:15 P.M., what does Ms. Murato most likely mean when she writes, 'Sounds good'?", opts: ["(A) She will contact Mr.Ozawa if she has questions.", "(B) She will attend a meeting by phone.", "(C) She will drive Mr.Ozawa to the station.", "(D) She will reschedule a consultation."], ans: 0, t_q: "48. Vào lúc 12:15 chiều, cô Murato có khả năng có ý gì nhất khi viết 'Nghe có vẻ ổn/Được đó'?", t_opts: ["(A) Cô ấy sẽ liên hệ với ông Ozawa nếu có thắc mắc.", "(B) Cô ấy sẽ tham dự một cuộc họp qua điện thoại.", "(C) Cô ấy sẽ chở ông Ozawa đến nhà ga.", "(D) Cô ấy sẽ sắp xếp lại một cuộc tư vấn."] }
+                ]
+            },
+            {
+                title: "Questions 49-50 refer to the following notice.",
+                content: `
+                    <h3 style="text-align: center;">Metro Updates</h3>
+                    <p><b>Upcoming events, programs, and activities in the Metro Area of Oakwood</b></p>
+                    <p>The city of Oakwood's FREE Central Shuttle launched Tuesday, July 27! The sparkling green buses follow a route between Piccadilly Square and Uptown. Be among the first to ride the free bus during its opening week while the city gears up for the official launch event on August 5. Look for the bright and colorful "C" signs along Central Avenue and climb aboard.</p>
+                    <p>The Central Shuttle will travel between Piccadilly Square and Uptown along Central Avenue and will make stops at Washington Street, Chinatown, Old Town, City Hall, the Marriott Convention Center, and the Financial District. The shuttle hours are Monday-Friday from 7 A.M. to 7 P.M. (with service potentially expanding into the evenings over time).</p>
+                    <p>Have you been wanting to try some restaurants and stores in Piccadilly Square but have no way to get there and back? Catch the "C"! For information about the shuttle and downtown Oakwood restaurants and other businesses, visit www.MeetDowntownOakwood.com.</p>
+                `,
+                questions: [
+                    { id: 49, q: "49. Which is NOT true about the Central Shuttle service?", opts: ["(A) It runs through downtown Oakwood.", "(B) It will possibly be expanded to the weekends.", "(C) Passengers will pay nothing for the ride.", "(D) It will run for 12 hours per day."], ans: 1, t_q: "49. Điều nào KHÔNG đúng về dịch vụ Tàu con thoi Central?", t_opts: ["(A) Nó chạy qua trung tâm thành phố Oakwood.", "(B) Nó có thể sẽ được mở rộng sang các ngày cuối tuần.", "(C) Hành khách sẽ không phải trả phí cho chuyến đi.", "(D) Nó sẽ chạy trong 12 giờ mỗi ngày."] },
+                    { id: 50, q: "50. Which is the main goal of the shuttle service?", opts: ["(A) To attract tourists from other cities", "(B) To improve the image of city officials", "(C) To provide bus drivers with employment opportunities", "(D) To encourage local residents to visit the downtown area more"], ans: 3, t_q: "50. Mục tiêu chính của dịch vụ tàu con thoi là gì?", t_opts: ["(A) Để thu hút khách du lịch từ các thành phố khác", "(B) Để cải thiện hình ảnh của các quan chức thành phố", "(C) Cung cấp cơ hội việc làm cho tài xế xe buýt", "(D) Để khuyến khích cư dân địa phương đến thăm khu vực trung tâm thành phố nhiều hơn."] }
+                ]
+            },
+            {
+                title: "Questions 51-52 refer to the following text message chain.",
+                content: `
+                    <table>
+                        <tr>
+                            <td>10:39 A.M.</td>
+                            <td><b>Charles Smith</b></td>
+                            <td>Hey, have you seen 'Before the Sun Set'? It's awesome! You can watch it on Vidz.com.</td>
+                        </tr>
+                        <tr>
+                            <td>10:42 A.M.</td>
+                            <td><b>Hilary Wallace</b></td>
+                            <td>No way! Do I need to pay?</td>
+                        </tr>
+                        <tr>
+                            <td>10:44 A.M.</td>
+                            <td><b>Charles Smith</b></td>
+                            <td>You first need to subscribe to their website and sign up for a free one-month trial.</td>
+                        </tr>
+                    </table>
+                `,
+                questions: [
+                    { id: 51, q: "51. What is indicated about Vidz.com?", opts: ["(A) It offers online files for free.", "(B) It's a paid service.", "(C) It's a social networking website.", "(D) It's been servicing for many years."], ans: 1, t_q: "51. Điều gì được chỉ ra về Vidz.com?", t_opts: ["(A) Nó cung cấp các tệp trực tuyến miễn phí.", "(B) Nó là một dịch vụ trả phí.", "(C) Nó là một trang web mạng xã hội.", "(D) Nó đã được phục vụ trong nhiều năm."] },
+                    { id: 52, q: "52. At 10:42 A.M., what does Ms. Wallace most likely mean when she writes, 'No way!'", opts: ["(A) She doesn't believe that Mr. Smith watched the movie.", "(B) She doesn't believe the movie is available for free.", "(C) She does not want to subscribe to Vidz.com.", "(D) She has already seen the movie."], ans: 1, t_q: "52. Vào lúc 10:42 sáng, cô Wallace có khả năng có ý gì nhất khi viết 'Không thể nào!'?", t_opts: ["(A) Cô ấy không tin rằng ông Smith đã xem bộ phim.", "(B) Cô ấy không tin rằng bộ phim có sẵn miễn phí.", "(C) Cô ấy không muốn đăng ký Vidz.com.", "(D) Cô ấy đã xem bộ phim rồi."] }
+                ]
+            },
+            {
+                title: "Questions 53-54 refer to the following memo.",
+                content: `
+                    <p><b>MEMO</b></p>
+                    <p><b>To:</b> All Eastland Regional Hospital staff</p>
+                    <p><b>From:</b> Patrick Menzales</p>
+                    <p><b>Date:</b> February 1</p>
+                    <p><b>Subject:</b> Referrals</p>
+                    <p>Eastland Regional Hospital is planning to hire more registered nurses, x-ray technicians, and cafeteria and housekeeping staff. We will be holding a hiring and information event on Wednesday, February 27, from 2 P.M. to 5 P.M. in the Winkler Auditorium. If you have friends or family interested in working here, this is a great opportunity for them to find out about open positions. There is no fee for entry. It is not necessary to make an appointment.</p>
+                    <p>As a valued employee, you will receive a bonus if you refer a candidate who is hired and whose employment lasts at least three months. Ask the candidate to include your name on the application in the space labeled "referred by." The bonus will be added to your paycheck.</p>
+                    <p>Please contact me if you have any questions.</p>
+                `,
+                questions: [
+                    { id: 53, q: "53. What is indicated about the hiring and information event?", opts: ["(A) It will be held in the cafeteria.", "(B) An admission fee will be charged.", "(C) It will take place in the afternoon.", "(D) Attendees will be asked to register in advance."], ans: 2, t_q: "53. Điều gì được chỉ ra về sự kiện tuyển dụng và thông tin?", t_opts: ["(A) Nó sẽ được tổ chức trong quán cà phê.", "(B) Một khoản phí nhập học sẽ được tính.", "(C) Nó sẽ diễn ra vào buổi chiều.", "(D) Những người tham dự sẽ được yêu cầu đăng ký trước."] },
+                    { id: 54, q: "54. What does Mr. Menzales encourage employees to do?", opts: ["(A) Volunteer to lead a project", "(B) Refer applicants for employment", "(C) Earn a bonus by working overtime", "(D) Apply for a better-paying position"], ans: 1, t_q: "54. Ông Menzales khuyến khích nhân viên làm gì?", t_opts: ["(A) Tình nguyện lãnh đạo một dự án", "(B) Giới thiệu người nộp đơn xin việc", "(C) Kiếm tiền thưởng bằng cách làm thêm giờ", "(D) Nộp đơn cho một vị trí được trả lương cao hơn"] }
+                ]
+            },
+// --- COPY TỪ ĐÂY TRỞ XUỐNG VÀ DÁN NỐI TIẾP VÀO TRONG MẢNG part7Data ---
+            
+            {
+                title: "Questions 55-57 refer to the following advertisement.",
+                content: `
+                    <p>Flare is now open and serving food in a lavish atmosphere for your complete dining pleasure. <b>[1]</b> Flare features freshly caught fish, lobster, and crab flown in from Maine daily, grass-fed Angus beef, and free-range chicken. Food is prepared tableside, within minutes of your order, with a personalized five-star chef adding special touches to each meal. <b>[2]</b></p>
+                    <p>Each dinner begins with an appetizer of your choice and is completed with a dessert to complement your meal. Should you choose, an alcoholic drink will be suggested to help cleanse the palate and to prepare you for the next course while you relax on our microfiber lush chairs. <b>[3]</b></p>
+                    <p>Private parties, romantic interludes, and special occasions are welcome. Our Guest Services Department will be happy to assist with all the preparations for your unique event. <b>[4]</b> Please call us at 368-985-6598 or visit us at www.flare.com to make a reservation.</p>
+                `,
+                questions: [
+                    { id: 55, q: "55. What is mentioned about Flare?", opts: ["(A) Individual cooks are present at each table.", "(B) Reservations are accepted only over the phone.", "(C) Meals are served buffet style.", "(D) Each dish comes with a recommended wine list."], ans: 0, t_q: "55. Điều gì được đề cập về Flare?", t_opts: ["(A) Có đầu bếp riêng ở mỗi bàn.", "(B) Đặt bàn chỉ được chấp nhận qua điện thoại.", "(C) Các bữa ăn được phục vụ theo kiểu tự chọn (buffet).", "(D) Mỗi món ăn đi kèm với một danh sách rượu vang được đề xuất."] },
+                    { id: 56, q: "56. What service does Flare NOT offer?", opts: ["(A) Comfortable seating", "(B) Birthday parties", "(C) Professional photography", "(D) Anniversary celebrations"], ans: 2, t_q: "56. Dịch vụ nào mà Flare KHÔNG cung cấp?", t_opts: ["(A) Chỗ ngồi thoải mái", "(B) Tiệc sinh nhật", "(C) Nhiếp ảnh chuyên nghiệp", "(D) Lễ kỷ niệm ngày cưới"] },
+                    { id: 57, q: "57. In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong? 'Reservations are required for all dinners, and a dress code is strictly enforced.'", opts: ["(A) [1]", "(B) [2]", "(C) [3]", "(D) [4]"], ans: 3, t_q: "57. Câu sau đây phù hợp nhất ở vị trí nào được đánh dấu [1], [2], [3] và [4]? 'Tất cả các bữa tối đều yêu cầu đặt trước, và quy định về trang phục được thực thi nghiêm ngặt.'", t_opts: ["(A) Vị trí [1]", "(B) Vị trí [2]", "(C) Vị trí [3]", "(D) Vị trí [4]"] }
+                ]
+            },
+            {
+                title: "Questions 58-61 refer to the following online chat discussion.",
+                content: `
+                    <div style="background:#eef2f3; padding: 15px; border-radius: 8px; max-width: 500px; margin: 0 auto; font-family: monospace;">
+                        <p><b>Loreen Hoyt (8:29 P.M.)</b><br>Have you all bought a dress for the Winter Ball yet? It's less than a month away and I still don't have one.</p>
+                        <p><b>Hope Wagner (8:32 P.M.)</b><br>No! I looked everywhere and still find the one I like.</p>
+                        <p><b>Hailey Jenner (8:36 P.M.)</b><br>I bought mine but I need to get it altered.</p>
+                        <p><b>Ashley Flores (8:44 P.M.)</b><br>I got mine at Joey's.</p>
+                        <p><b>Hailey Jenner (8:46 P.M.)</b><br>Same here! But they didn't have my size.</p>
+                        <p><b>Loreen Hoyt (8:50 P.M.)</b><br>I went to Joey's to look at dresses, too, but they didn't have a wide selection of designs, so I had to leave empty-handed.</p>
+                    </div>
+                `,
+                questions: [
+                    { id: 58, q: "58. What is probably going to happen in a month?", opts: ["(A) An award ceremony", "(B) A dance party", "(C) A meeting", "(D) A seminar"], ans: 1, t_q: "58. Điều gì có khả năng sẽ xảy ra trong một tháng nữa?", t_opts: ["(A) Một buổi lễ trao giải", "(B) Một bữa tiệc khiêu vũ", "(C) Một cuộc họp", "(D) Một buổi hội thảo"] },
+                    { id: 59, q: "59. What is Ms. Jenner's concern?", opts: ["(A) Her dress doesn't fit her.", "(B) She can't find a specific dress that she wants.", "(C) The dress is too expensive.", "(D) The dress will not get altered in time."], ans: 0, t_q: "59. Mối quan tâm của cô Jenner là gì?", t_opts: ["(A) Chiếc váy của cô ấy không vừa.", "(B) Cô ấy không thể tìm thấy một chiếc váy cụ thể mà cô ấy muốn.", "(C) Chiếc váy quá đắt.", "(D) Chiếc váy sẽ không được sửa lại kịp thời."] },
+                    { id: 60, q: "60. Why did Ms. Hoyt NOT purchase a dress at Joey's?", opts: ["(A) She is not going to the Winter Ball.", "(B) There were not many to choose from.", "(C) She couldn't find her size.", "(D) She already owns a dress."], ans: 1, t_q: "60. Tại sao cô Hoyt KHÔNG mua váy ở Joey's?", t_opts: ["(A) Cô ấy không đi dự Winter Ball.", "(B) Không có nhiều mẫu để lựa chọn.", "(C) Cô ấy không thể tìm thấy kích cỡ của mình.", "(D) Cô ấy đã có sẵn một chiếc váy."] },
+                    { id: 61, q: "61. At 8:46 P.M., what does Ms. Jenner most likely mean when she writes, 'Same here!'?", opts: ["(A) She met Ms. Flores at Joey's.", "(B) She got the same dress as Ms. Flores'.", "(C) She purchased her dress at Joey's.", "(D) She didn't start looking for a dress yet."], ans: 2, t_q: "61. Vào lúc 8:46 tối, cô Jenner có khả năng có ý gì nhất khi viết 'Tôi cũng vậy!'?", t_opts: ["(A) Cô ấy đã gặp cô Flores tại Joey's.", "(B) Cô ấy đã mua chiếc váy giống với của cô Flores.", "(C) Cô ấy đã mua chiếc váy của mình tại Joey's.", "(D) Cô ấy vẫn chưa bắt đầu tìm kiếm một chiếc váy."] }
+                ]
+            },
+            {
+                title: "Questions 62-64 refer to the following notice.",
+                content: `
+                    <h3 style="text-align: center;">Attention All Employees</h3>
+                    <p>At 7:30 A.M. today, the main server facility lost power during regular security testing. <b>[1]</b>. Power was restored less than one hour later, and the company Web site is now fully functional. <b>[2]</b>.</p>
+                    <p>However, many services are still down. Among these are the main database and all desktop phone services, including voice mail. At this time, you can access e-mail from mobile devices but not from your office computers. <b>[3]</b>.</p>
+                    <p>Our technicians are working to bring all systems back online. However, it may take until this afternoon for everything to resume working normally. <b>[4]</b>. We understand the importance of these services to your work, and we will issue updates as more information becomes available.</p>
+                `,
+                questions: [
+                    { id: 62, q: "62. What is the purpose of the notice?", opts: ["(A) To explain how to access a Web site", "(B) To provide instructions for using voice mail", "(C) To inform employees of a technology issue", "(D) To advise employees of revisions to a database"], ans: 2, t_q: "62. Mục đích của thông báo là gì?", t_opts: ["(A) Để giải thích cách truy cập một trang web", "(B) Cung cấp hướng dẫn sử dụng thư thoại", "(C) Để thông báo cho nhân viên về một vấn đề công nghệ", "(D) Để khuyên nhân viên về các sửa đổi đối với cơ sở dữ liệu"] },
+                    { id: 63, q: "63. What is indicated about the company e-mail?", opts: ["(A) It is only available on office computers.", "(B) It is accessible on mobile devices.", "(C) Only office technicians can use it currently.", "(D) It has been updated to provide more security."], ans: 1, t_q: "63. Điều gì được chỉ ra về email của công ty?", t_opts: ["(A) Nó chỉ khả dụng trên máy tính văn phòng.", "(B) Có thể truy cập được trên các thiết bị di động.", "(C) Hiện tại chỉ các kỹ thuật viên văn phòng mới có thể sử dụng.", "(D) Nó đã được cập nhật để cung cấp bảo mật cao hơn."] },
+                    { id: 64, q: "64. In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong? 'We humbly ask for your patience until that time.'", opts: ["(A) [1]", "(B) [2]", "(C) [3]", "(D) [4]"], ans: 3, t_q: "64. Câu sau đây phù hợp nhất ở vị trí nào được đánh dấu [1], [2], [3] và [4]? 'Chúng tôi khiêm tốn yêu cầu sự kiên nhẫn của bạn cho đến thời điểm đó.'", t_opts: ["(A) Vị trí [1]", "(B) Vị trí [2]", "(C) Vị trí [3]", "(D) Vị trí [4]"] }
+                ]
+            },
+            {
+                title: "Questions 65-67 refer to the following e-mail.",
+                content: `
+                    <table>
+                        <tr><td><b>From:</b></td><td>Melanie Davis (mdavis@mlindustries.com)</td></tr>
+                        <tr><td><b>Sent:</b></td><td>Monday, October 9, 12:48 P.M.</td></tr>
+                        <tr><td><b>To:</b></td><td>Steven Alvarez (Salvarez@mlindustries.com)</td></tr>
+                        <tr><td><b>Subject:</b></td><td>Tomorrow</td></tr>
+                    </table>
+                    <p>I realize that we are supposed to meet on Tuesday to discuss the company's recent sales performance, but I am afraid I have to reschedule. Leslie Prescott from the Detroit office will be visiting us on that day to talk about next year's advertising campaign.</p>
+                    <p>In addition, I will be leaving for a marketing conference in New York on Wednesday, and then I will be in Philadelphia for a budget meeting on Thursday. Can we reschedule for Friday? I will be back in Chicago then. If this is not convenient for you, please let me know your availability for next week, and I will try to work around your schedule.</p>
+                    <p>I am very sorry for the late notice.<br>Melanie</p>
+                `,
+                questions: [
+                    { id: 65, q: "65. What is the purpose of the e-mail?", opts: ["(A) To propose changes to a budget", "(B) To inquire about an advertisement", "(C) To make travel arrangements", "(D) To postpone a meeting"], ans: 3, t_q: "65. Mục đích của e-mail là gì?", t_opts: ["(A) Đề xuất thay đổi ngân sách", "(B) Hỏi về một quảng cáo", "(C) Sắp xếp lịch trình du lịch", "(D) Hoãn một cuộc họp"] },
+                    { id: 66, q: "66. When will Melanie Davis meet with Leslie Prescott?", opts: ["(A) On Monday", "(B) On Tuesday", "(C) On Wednesday", "(D) On Thursday"], ans: 1, t_q: "66. Khi nào Melanie Davis sẽ gặp Leslie Prescott?", t_opts: ["(A) Vào thứ Hai", "(B) Vào thứ Ba", "(C) Vào thứ Tư", "(D) Vào thứ Năm"] },
+                    { id: 67, q: "67. Where does Steven Alvarez most likely work?", opts: ["(A) In Chicago", "(B) In Detroit", "(C) In New York", "(D) In Philadelphia"], ans: 0, t_q: "67. Steven Alvarez có khả năng làm việc ở đâu nhất?", t_opts: ["(A) Ở Chicago", "(B) Ở Detroit", "(C) Ở New York", "(D) Ở Philadelphia"] }
+                ]
+            },
+            {
+                title: "Questions 68-71 refer to the following review.",
+                content: `
+                    <p><b>http://www.softwareopinion.com/review</b></p>
+                    <p><b>S-Tor Application</b> ★★☆☆☆<br>
+                    <i>"I was disappointed with the customer service I received." - Adele Mohlmann</i></p>
+                    <p>My job involves coordinating large-scale corporate events like trade shows and conventions. <b>[1]</b>. Because I am on the road a lot, I have found S-Tor to be perfect for storing vendor lists, program schedules, and other important documents that I need to access digitally wherever I happen to be. <b>[2]</b>. In fact, I became so reliant on S-Tor that I never stopped to consider what I would do if I couldn't access it one day.</p>
+                    <p>That day finally came, though, and I was disappointed with the customer service I received. When I contacted the help desk to report that I was unable to log in, I was transferred from representative to representative, each one walking me through the same troubleshooting procedure. <b>[3]</b>. I was eventually able to get back into the application, but only after much trial and error. Nonetheless, everyone I spoke with was nice and polite.</p>
+                    <p>In short, I love the S-Tor application, but I have to be certain that I can quickly get it running again if something goes wrong. <b>[4]</b>. After this experience with S-Tor's help desk, I have decided to look at similar products to see how they compare.</p>
+                `,
+                questions: [
+                    { id: 68, q: "68. Who most likely is Ms. Mohlmann?", opts: ["(A) A product tester", "(B) A corporate trainer", "(C) A sales representative", "(D) An event planner"], ans: 3, t_q: "68. Ai có khả năng là cô Mohlmann nhất?", t_opts: ["(A) Một người kiểm tra sản phẩm", "(B) Một người đào tạo doanh nghiệp", "(C) Một đại diện bán hàng", "(D) Một người lên kế hoạch sự kiện"] },
+                    { id: 69, q: "69. What is indicated about Ms. Mohlmann?", opts: ["(A) She prefers paper documents.", "(B) She travels often for her job.", "(C) She receives software for free.", "(D) She gives frequent presentations."], ans: 1, t_q: "69. Điều gì được chỉ ra về cô Mohlmann?", t_opts: ["(A) Cô ấy thích tài liệu giấy hơn.", "(B) Cô ấy thường xuyên đi lại vì công việc.", "(C) Cô ấy nhận phần mềm miễn phí.", "(D) Cô ấy thường xuyên thuyết trình."] },
+                    { id: 70, q: "70. Why was Ms. Mohlmann unhappy with S-Tor's customer service?", opts: ["(A) The instructions given were not clear.", "(B) Help-desk employees were unfriendly.", "(C) Her issue took too long to resolve.", "(D) She felt pressured to make a purchase"], ans: 2, t_q: "70. Tại sao cô Mohlmann không hài lòng với dịch vụ khách hàng của S-Tor?", t_opts: ["(A) Các hướng dẫn được đưa ra không rõ ràng.", "(B) Nhân viên bộ phận trợ giúp không thân thiện.", "(C) Vấn đề của cô ấy mất quá nhiều thời gian để giải quyết.", "(D) Cô ấy cảm thấy bị áp lực phải mua hàng"] },
+                    { id: 71, q: "71. In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong? 'Instructing me to repeat the same steps over and over seemed pointless.'", opts: ["(A) [1]", "(B) [2]", "(C) [3]", "(D) [4]"], ans: 2, t_q: "71. Câu sau đây phù hợp nhất ở vị trí nào được đánh dấu [1], [2], [3] và [4]? 'Việc hướng dẫn tôi lặp đi lặp lại cùng một bước có vẻ vô nghĩa.'", t_opts: ["(A) Vị trí [1]", "(B) Vị trí [2]", "(C) Vị trí [3]", "(D) Vị trí [4]"] }
+                ]
+            },
+            {
+                title: "Questions 72-75 refer to the following review from a website.",
+                content: `
+                    <p><b>Product Review: Flairs Animal Furniture's Forest Creek Doghouse</b></p>
+                    <p>Last week, I bought the Forest Creek Doghouse. After receiving it only two days after ordering it rather than the standard five, I was thrilled. For further instructions, I tried but failed to contact Flairs Animal Furniture's Customer Service Department after spending several infuriating days trying to put it together. Eventually, I repacked the doghouse and returned it to Flairs.</p>
+                    <p>Flairs described the Forest Creek Doghouse as an easy DIY kit that comes with the appropriate tools to assemble it. This was definitely not the case. The screw fittings and markings were not properly aligned. Thus it was impossible to line up the boards perfectly. This resulted in a warped doghouse. The tools provided with the kit were poor, and one even broke while I was using it. All four wall sides splintered as I was trying to connect the roof piece.</p>
+                    <p>In the end, Flairs refused to supply me with free replacements for the doghouse and tools. Unsurprisingly, this will be the last item I buy from Flairs Animal Furniture range of wooden goods. I also highly recommend that you first check with Flairs before you buy any product to see if the company will replace any parts damaged during assembly.</p>
+                    <p>- Greg Matthews</p>
+                `,
+                questions: [
+                    { id: 72, q: "72. The word 'instructions' in paragraph 1, line 2 is closest in meaning to", opts: ["(A) sanctions", "(B) directions", "(C) submissions", "(D) institutions"], ans: 1, t_q: "72. Từ 'instructions' (hướng dẫn) trong đoạn 1, dòng 2 gần nghĩa nhất với", t_opts: ["(A) sự trừng phạt", "(B) chỉ dẫn", "(C) sự đệ trình", "(D) tổ chức/thể chế"] },
+                    { id: 73, q: "73. What does Mr. Matthews imply about the delivery of the product?", opts: ["(A) It arrived earlier than expected.", "(B) The delivery fee was costly.", "(C) The product was delivered to the wrong address.", "(D) The product was damaged upon delivery."], ans: 0, t_q: "73. Ông Matthews ngụ ý điều gì về việc giao sản phẩm?", t_opts: ["(A) Nó đến sớm hơn dự kiến.", "(B) Phí giao hàng đắt đỏ.", "(C) Sản phẩm được giao sai địa chỉ.", "(D) Sản phẩm bị hư hỏng khi giao."] },
+                    { id: 74, q: "74. What is NOT mentioned as a problem that Mr. Matthews experienced?", opts: ["(A) He failed to reach a customer service representative.", "(B) The doghouse was smaller than advertised.", "(C) He was unable to make some pieces line up correctly.", "(D) All the wall boards of the doghouse broke."], ans: 1, t_q: "74. Điều gì KHÔNG được đề cập như một vấn đề mà ông Matthews gặp phải?", t_opts: ["(A) Ông không liên lạc được với đại diện dịch vụ khách hàng.", "(B) Ngôi nhà cho chó nhỏ hơn so với quảng cáo.", "(C) Ông không thể xếp một số mảnh ghép thẳng hàng một cách chính xác.", "(D) Tất cả các tấm ván tường của ngôi nhà cho chó đều bị vỡ."] },
+                    { id: 75, q: "75. What advice does Mr. Matthews give about purchasing a product from Flairs Animal Furniture?", opts: ["(A) To make sure to purchase a product from the Forest Creek range", "(B) To pay an employee to assemble the product upon delivery", "(C) To check the company's policy on replacing damaged parts", "(D) To purchase only products made of chip wood"], ans: 2, t_q: "75. Lời khuyên của ông Matthews về việc mua sản phẩm từ Nội thất Động vật Flairs là gì?", t_opts: ["(A) Đảm bảo mua một sản phẩm từ dòng Forest Creek", "(B) Trả tiền cho một nhân viên để lắp ráp sản phẩm khi giao hàng", "(C) Kiểm tra chính sách của công ty về việc thay thế các bộ phận bị hỏng", "(D) Chỉ mua các sản phẩm làm bằng gỗ vụn"] }
+                ]
+            },
+            {
+                title: "Questions 76-80 refer to the following advertisement and form.",
+                content: `
+                    <div style="padding: 15px; border: 1px dashed #333;">
+                        <h3 style="text-align: center; margin: 0;">Ivy Park Nursery</h3>
+                        <p style="text-align: center; margin: 5px 0;"><b>Decorative Plants and Trees</b><br>45400 N Black Canyon Hwy, Phoenix, AZ 85087<br>(602) 3636 8635 | www.ivypark.com</p>
+                        <hr>
+                        <p>For all your needs to add nature to your home or office, come to Ivy Park Nursery. We offer a huge range of plants and trees from all over the globe. Stroll through 15,000 square meters of garden exhibits and look over and select your own plants.</p>
+                        <ul>
+                            <li>Section 1: Flowering plants and shrubs</li>
+                            <li>Section 2: Fruit trees and vines</li>
+                            <li>Section 3: Hardy plants of Arizona</li>
+                            <li>Section 4: Water-based plants for ponds and fountains</li>
+                        </ul>
+                        <p>For your convenience, to happily answer questions about any plant's light, water, and soil needs, our nursery staff speaks several languages. Looking for something new, unusual, or exotic? At the main greenhouse, ask one of our many helpful master gardeners about making a special order.</p>
+                        <p>Ivy Park Nursery can deliver your selected plants or trees anywhere in the Phoenix area.</p>
+                    </div>
+                    <br>
+                    <table>
+                        <tr><th colspan="2">Order Form</th></tr>
+                        <tr><td><b>Customer Name:</b></td><td>Sarah Milton</td></tr>
+                        <tr><td><b>Delivery Date:</b></td><td>June 14</td></tr>
+                        <tr><td><b>Address:</b></td><td>3761 N. Rowen, Mesa, AZ 85207</td></tr>
+                        <tr><td><b>Phone:</b></td><td>(602) 4527 3574</td></tr>
+                        <tr><th>Type</th><th>Quantity</th></tr>
+                        <tr><td>1. White Water Lily (alba)</td><td>2</td></tr>
+                        <tr><td>2. Cactus Plant (harrisia)</td><td>1</td></tr>
+                        <tr><td>3. Fruit Tree - Peach</td><td>1</td></tr>
+                        <tr><td>4. Fruit Tree - Apple</td><td>1</td></tr>
+                        <tr><td>5. Red Grape Vine (cienna)</td><td>2</td></tr>
+                    </table>
+                    <p>After completing your order form, please submit it to a nursery assistant. The assistant will then check your selection, answer any questions, and verify the plants you have selected.</p>
+                    <ul>
+                        <li>We guarantee that customers will receive their deliveries within seven days of placing an order.</li>
+                        <li>Ivy Park Nursery must be informed of damaged or unhealthy plants within one day of their confirmed delivery.</li>
+                    </ul>
+                `,
+                questions: [
+                    { id: 76, q: "76. What is suggested about Ivy Park Nursery?", opts: ["(A) It delivers exotic plants nationwide.", "(B) It mainly supplies farms and orchards.", "(C) It allows customers to explore its gardens.", "(D) It offers full refunds on unwanted flowers."], ans: 2, t_q: "76. Điều gì được gợi ý về Vườn ươm Ivy Park?", t_opts: ["(A) Nó giao cây lạ trên toàn quốc.", "(B) Nó chủ yếu cung cấp cho các trang trại và vườn cây ăn quả.", "(C) Nó cho phép khách hàng khám phá các khu vườn của mình.", "(D) Nó hoàn tiền đầy đủ cho những bông hoa không mong muốn."] },
+                    { id: 77, q: "77. According to the advertisement, what information can the nursery staff provide customers?", opts: ["(A) Individual plants' growing requirements", "(B) Any plant's biological origins", "(C) The discount pricing policy on bulk orders", "(D) Instructions on constructing a pond for water flora"], ans: 0, t_q: "77. Theo quảng cáo, nhân viên vườn ươm có thể cung cấp cho khách hàng thông tin gì?", t_opts: ["(A) Yêu cầu phát triển của từng loại cây trồng (ánh sáng, nước, đất)", "(B) Nguồn gốc sinh học của bất kỳ loài cây nào", "(C) Chính sách chiết khấu giá cho các đơn đặt hàng số lượng lớn", "(D) Hướng dẫn xây dựng ao cho hệ thực vật thủy sinh"] },
+                    { id: 78, q: "78. How can customers submit special orders for unique plants?", opts: ["(A) By mailing a special-order form to Ivy Park Nursery", "(B) By registering on the nursery's Web site", "(C) By talking to a master gardener", "(D) By presenting an order form to the nursery staff"], ans: 2, t_q: "78. Khách hàng có thể gửi đơn đặt hàng đặc biệt cho các loại cây độc đáo bằng cách nào?", t_opts: ["(A) Bằng cách gửi một mẫu đơn đặt hàng đặc biệt qua đường bưu điện", "(B) Bằng cách đăng ký trên trang web của vườn ươm", "(C) Bằng cách nói chuyện với một người làm vườn bậc thầy (master gardener)", "(D) Bằng cách nộp đơn đặt hàng cho nhân viên vườn ươm"] },
+                    { id: 79, q: "79. Where will the nursery employees find most of Ms. Milton's order?", opts: ["(A) In Section 1", "(B) In Section 2", "(C) In Section 3", "(D) In Section 4"], ans: 1, t_q: "79. Nhân viên vườn ươm sẽ tìm thấy phần lớn đơn đặt hàng của cô Milton ở đâu?", t_opts: ["(A) Ở Khu vực 1", "(B) Ở Khu vực 2", "(C) Ở Khu vực 3", "(D) Ở Khu vực 4"] },
+                    { id: 80, q: "80. According to the form, what must Ms. Milton do by June 15?", opts: ["(A) Pay for her plant order and the delivery fee", "(B) Return any incorrectly delivered plants", "(C) Plant or repot the plants that she has purchased", "(D) Contact the nursery about any problems related to her plants"], ans: 3, t_q: "80. Theo biểu mẫu, cô Milton phải làm gì trước ngày 15 tháng 6?", t_opts: ["(A) Thanh toán cho đơn đặt hàng cây và phí giao hàng", "(B) Trả lại bất kỳ cây nào được giao không chính xác", "(C) Trồng hoặc thay chậu những loại cây mà cô ấy đã mua", "(D) Liên hệ với vườn ươm về bất kỳ vấn đề nào liên quan đến cây của cô ấy (trong vòng 1 ngày sau khi nhận 14/6)"] }
+                ]
+            },
+            {
+                title: "Questions 81-85 refer to the following article and e-mail.",
+                content: `
+                    <p><b>Excerpt from Eating Healthy</b><br>by B. Foreman</p>
+                    <p>Eating a healthy, balanced diet is not as illusive a reality as some may think. There are 4 rules one should follow to start the process of eating more healthy foods:</p>
+                    <ol>
+                        <li>Limit all food servings to the size of your fist.</li>
+                        <li>Eat twice as many fruits and vegetables as you do grains and protein each day.</li>
+                        <li>Limit your salt intake to 1,000 mg per day.</li>
+                        <li>Eradicate all fats from your diet.</li>
+                    </ol>
+                    <p>In addition to these basic eating guides, there are some basic health guides to follow as well:</p>
+                    <p>A. Spend 20 minutes outdoors at least twice a day.<br>B. Spend 40 minutes doing aerobic exercise at least 3 times a week.</p>
+                    <br>
+                    <table>
+                        <tr><td><b>To:</b></td><td>Bob Foreman (bforeman@mail.com)</td></tr>
+                        <tr><td><b>From:</b></td><td>Rachel Koon (rkoon@mail.com)</td></tr>
+                        <tr><td><b>Date:</b></td><td>December 10</td></tr>
+                        <tr><td><b>Re:</b></td><td>Leading a Healthy Lifestyle</td></tr>
+                    </table>
+                    <p>Dear Mr. Foreman,</p>
+                    <p>I read your most recent article published in the December issue of Healthy Lifestyles Magazine. I must say that I was highly dismayed to find many of your quick tips to be wrong and/or misleading.</p>
+                    <p>First, you suggest having twice as many fruits and vegetables a day in comparison to grains and protein. This diet philosophy is simply wrong. Fruits and vegetables are high in starch and sugar, both of which provide a quick energy boost but then leave you tired and irritable within an hour of consumption.</p>
+                    <p>Secondly, you suggest spending at least 20 minutes outside twice a day. While many studies support the premise of your advice the National Center for Health published a report saying that vitamin D is available in large quantities from the sun and boosts energy and mood your advice simply to spend that time outside is useless. Why not combine the outside time with the physical activity you recommend?</p>
+                    <p>There are countless other fallacies in your article, but these are the two most problematic. I suggest you conduct more thorough research before making announcements to the public.</p>
+                    <p>Sincerely,<br>Rachel Koon</p>
+                `,
+                questions: [
+                    { id: 81, q: "81. Which title best describes the contents of the article?", opts: ["(A) Avoiding fatty foods", "(B) Becoming a dietician", "(C) Growing one's own food", "(D) Healthy lifestyle choices"], ans: 3, t_q: "81. Tiêu đề nào mô tả đúng nhất nội dung của bài viết?", t_opts: ["(A) Tránh thực phẩm béo", "(B) Trở thành một chuyên gia dinh dưỡng", "(C) Tự trồng thực phẩm", "(D) Những lựa chọn lối sống lành mạnh"] },
+                    { id: 82, q: "82. In the e-mail, the word 'fallacies' in paragraph 4, line 1 is the closest in meaning to", opts: ["(A) errors", "(B) feathers", "(C) faiths", "(D) facts"], ans: 0, t_q: "82. Trong e-mail, từ 'fallacies' (ngụy biện/sai lầm) ở đoạn 4, dòng 1 có nghĩa gần nhất với", t_opts: ["(A) lỗi lầm", "(B) lông vũ", "(C) niềm tin", "(D) sự thật"] },
+                    { id: 83, q: "83. Why did Ms. Koon write the e-mail?", opts: ["(A) To request more information", "(B) To question the article's content", "(C) To suggest a professional partnership", "(D) To ask for a letter of recommendation"], ans: 1, t_q: "83. Tại sao cô Koon viết e-mail?", t_opts: ["(A) Để yêu cầu thêm thông tin", "(B) Để chất vấn/đặt nghi vấn về nội dung của bài báo", "(C) Đề xuất một mối quan hệ đối tác chuyên nghiệp", "(D) Xin một lá thư giới thiệu"] },
+                    { id: 84, q: "84. Which item number from the article does Ms. Koon address in her e-mail?", opts: ["(A) 1", "(B) 2", "(C) 3", "(D) 4"], ans: 1, t_q: "84. Số mục nào từ bài báo mà cô Koon đề cập trong e-mail của mình?", t_opts: ["(A) 1", "(B) 2", "(C) 3", "(D) 4"] },
+                    { id: 85, q: "85. Why does Ms. Koon cite the study by the National Center for Health?", opts: ["(A) To prove her level of education to Mr. Foreman", "(B) To reveal a fallacy in Mr. Foreman's thinking", "(C) To pose a threat to Mr. Foreman", "(D) To question the validity of the entire report"], ans: 1, t_q: "85. Tại sao cô Koon trích dẫn nghiên cứu của Trung tâm Y tế Quốc gia?", t_opts: ["(A) Để chứng minh trình độ học vấn của cô ấy cho ông Foreman", "(B) Để tiết lộ một sự sai lầm trong suy nghĩ của ông Foreman", "(C) Để đe dọa ông Foreman", "(D) Để đặt câu hỏi về tính hợp lệ của toàn bộ báo cáo"] }
+                ]
+            },
+            {
+                title: "Questions 86-90 refer to the following letter, e-mail and Web page.",
+                content: `
+                    <p><b>February 18</b><br>
+                    Mr. Masao Kinoshita<br>Allied Tekno Company<br>5-3-1 Ginza, Chuo, Tokyo, 104-0061, Japan</p>
+                    <p>Dear Mr. Kinoshita</p>
+                    <p>Here at Greentech, our team is committed to recycling your computers, smart/desktop phones, and other electronics in a responsible way. Our reasonable prices are the result of our resourceful collection network. Since we have facilities in 40 cities around the world, we are able to reduce costs on shipping, transportation, and fuel usage.</p>
+                    <p>Your choices on where and what to recycle have a great impact, especially since you are the environmental officer of one of Japan's most rapidly growing companies. After reading the enclosed booklet about Greentech, I hope you will consider us as the place to send your disused and recyclable electronic material. To further your trust in our quality of service, I encourage you to contact any of our clients identified on the last page of the booklet. Please contact me or, if you prefer, speak with Takao Minatoya in our Tokyo office if you would like to discuss your company's needs.</p>
+                    <p>Sincerely,<br>Ib Holm<br>Senior Account Manager</p>
+                    <hr>
+                    <table>
+                        <tr><td><b>From:</b></td><td>Masao Kinoshita [kinoshita@altek.co.jp]</td></tr>
+                        <tr><td><b>To:</b></td><td>Luke Ricketts [luker@timmsglobal.com]</td></tr>
+                        <tr><td><b>Date:</b></td><td>February 22</td></tr>
+                        <tr><td><b>Subject:</b></td><td>Greentech</td></tr>
+                    </table>
+                    <p>Dear Mr. Ricketts,</p>
+                    <p>I am the environmental officer for Allied Tekno Company in Tokyo. We are considering signing an agreement with Greentech to recycle our obsolete computer equipment and used printer cartridges. I would like to hear your opinion on its services before I contact its regional representative at Greentech.</p>
+                    <p>I am aware that your company uses Greentech to collect electronic material from several of your global offices. I am especially interested in hearing about your Osaka office and its experiences. Greentech transfers your electronic waste from there to its processing plant in Kameyama, which is also where our materials would be sent. Based on your experience, how would you evaluate Greentech? I'm particularly interested in its ability to pick up your waste materials on the appointed days and times.</p>
+                    <p>Any information you can provide will be greatly appreciated.<br>Sincerely,<br>Masao Kinoshita</p>
+                    <hr>
+                    <p><b>4 companies to watch as e-cycling movement takes off</b></p>
+                    <ul>
+                        <li><b>Juno Solutions (U.S.):</b> It claims to help increase the recovery value of equipment by 50 to 80 percent. The company has partners in Europe and South America that can help manage multi-region engagements.</li>
+                        <li><b>Cloud-Five Technologies (Canada):</b> This company built up a client base of more than 1,000 customers before being acquired by the world's largest wholesale technology distributor, Womack Micro. Its R2- and e-Stewards-certified services are available in more than 40 locations worldwide.</li>
+                        <li><b>Jones Recycling Factory (South Korea):</b> Jones was just named a "Leader" for IT asset disposition in several reports. It has multiple facilities that have been certified to e-Stewards standards and runs 22 sites in Asia. Fast and punctual pick-up services are their best merit.</li>
+                        <li><b>Giga Collector (Taiwan):</b> One of its big differentiators is proprietary data sanitization software, used to clear confidential data from hardware that it is managing. Its specialty is high-end enterprise technology found in data centers.</li>
+                    </ul>
+                `,
+                questions: [
+                    { id: 86, q: "86. What is the purpose of the letter?", opts: ["(A) To explain an environmental policy", "(B) To offer a recycling service", "(C) To receive feedback from long-term clients", "(D) To recommend a new computer package"], ans: 1, t_q: "86. Mục đích của lá thư là gì?", t_opts: ["(A) Để giải thích một chính sách môi trường", "(B) Đề nghị cung cấp một dịch vụ tái chế", "(C) Nhận phản hồi từ khách hàng dài hạn", "(D) Đề xuất một gói máy tính mới"] },
+                    { id: 87, q: "87. According to the letter, how does Greentech decrease its energy consumption?", opts: ["(A) It utilizes appliances with power-saving technology.", "(B) It transfers products in energy hybrid transports.", "(C) It operates facilities nearby clients.", "(D) It reconditions computer and electronic equipment."], ans: 2, t_q: "87. Theo lá thư, làm thế nào để Greentech giảm mức tiêu thụ năng lượng của mình?", t_opts: ["(A) Nó sử dụng các thiết bị với công nghệ tiết kiệm năng lượng.", "(B) Nó chuyển các sản phẩm bằng phương tiện vận tải lai năng lượng.", "(C) Nó vận hành các cơ sở ở gần khách hàng.", "(D) Nó phục hồi máy tính và thiết bị điện tử."] },
+                    { id: 88, q: "88. Who most likely is the regional representative for Greentech?", opts: ["(A) Masao Kinoshita", "(B) Luke Ricketts", "(C) Ib Holm", "(D) Takao Minatoya"], ans: 3, t_q: "88. Ai có khả năng nhất là đại diện khu vực của Greentech?", t_opts: ["(A) Masao Kinoshita", "(B) Luke Ricketts", "(C) Ib Holm", "(D) Takao Minatoya"] },
+                    { id: 89, q: "89. Where did Mr. Kinoshita most likely get Mr. Ricketts's contact information?", opts: ["(A) From a Japanese business register", "(B) From Mr. Holm's assistant", "(C) From Greentech's Tokyo office", "(D) From Greentech's list of references"], ans: 3, t_q: "89. Có khả năng nhất là ông Kinoshita lấy thông tin liên lạc của ông Ricketts từ đâu?", t_opts: ["(A) Từ một sổ đăng ký kinh doanh Nhật Bản", "(B) Từ trợ lý của ông Holm", "(C) Từ văn phòng Tokyo của Greentech", "(D) Từ danh sách tài liệu tham khảo/khách hàng của Greentech"] },
+                    { id: 90, q: "90. What will Mr. Kinoshita probably choose other than Greentech?", opts: ["(A) Juno Solutions", "(B) Cloud-Five Technologies", "(C) Jones Recycling Factory", "(D) Giga Collector"], ans: 2, t_q: "90. Ông Kinoshita có thể sẽ chọn bên nào khác ngoài Greentech?", t_opts: ["(A) Juno Solutions", "(B) Cloud-Five Technologies", "(C) Jones Recycling Factory", "(D) Giga Collector"] }
+                ]
+            },
+            {
+                title: "Questions 91-95 refer to the following posting, letter and e-mail.",
+                content: `
+                    <p><b>Division of Design and Construction Teacher</b></p>
+                    <p><b>Summary Information:</b><br>Position Type: Teaching<br>Categories: Construction Technology Instructor<br>School/Organization: Rapids Vocational Training Center<br>Location: Michigan<br>No. of Positions: 1<br>Posting Date: November 20<br>Closing Date: Open Until Filled</p>
+                    <p><b>Details:</b><br>JOB TITLE: Division of Design and Construction Instructor<br>JOB SUMMARY: The Division of Design and Construction at Rapids Vocational Training Center will introduce students to the study of design and construction - integrated within a rigorous and relevant core curriculum that will enhance their mastery of academic skills and content. The Division of Design and Construction will increase a student's ability to think critically, analyze information, express uniqueness and gain relevant knowledge that will prepare him/her for global success.</p>
+                    <p>** Preference will be given to the applicants with published related books or overseas experience.</p>
+                    <hr>
+                    <p>To whom it may concern,</p>
+                    <p>I am writing to express interest in the Division of Design and Construction Instructor position you have posted on your Center's website. I am a licensed teacher in Michigan with 7 years' teaching experience. Before becoming a teacher, I spent 3 years in the design and construction industry. I interned with a prestigious architect firm in Grand Rapids, Michigan during college and was granted employment upon my graduation. My degree from Michigan State University is in Drafting and Design.</p>
+                    <p>After my 3-year stint in the world of architecture, I decided my true passion was teaching and so returned to school to get my master's in Education. Upon graduation, I was hired by Union City High School as their Drafting and Design teacher, where I have spent the last 7 years. While I love my position at Union City High School, my husband's work requires that we relocate and thus I am applying for employment at your educational facility.</p>
+                    <p>I have a passion for teaching young people and feel that the world of Design and Construction opens their minds to a world of possibilities. I feel that my teaching philosophy falls in line with your desire that the teacher should be able to enhance the students' thinking and analyzing skills, impart what makes them distinctive, and prepare them for a fruitful future.</p>
+                    <p>Sincerely,<br>Megan Simpson</p>
+                    <hr>
+                    <table>
+                        <tr><td><b>To:</b></td><td>Igor Cavalera I.Cavarela@RVTCenter.ac.uk</td></tr>
+                        <tr><td><b>From:</b></td><td>Mary Hopkin Mary.H@RVTCenter.ac.uk</td></tr>
+                        <tr><td><b>Date:</b></td><td>December 5</td></tr>
+                        <tr><td><b>Subject:</b></td><td>Whom to hire</td></tr>
+                    </table>
+                    <p>Now is the time to choose the instructor. Megan Simpson and Antonio Kieslowski are the final applicants. Both have industry and teaching experiences. However, Ms. Simpson does not meet any of our favored conditions. Therefore, I think Mr. Kieslowski is the right person for the job. What is your opinion?</p>
+                    <p>Sincerely,<br>Mary Hopkin<br>Director of Personnel Department - Rapids Vocational Training Center</p>
+                `,
+                questions: [
+                    { id: 91, q: "91. When will the school no longer accept job applicants?", opts: ["(A) After a period of 30 days", "(B) Until a certain number apply", "(C) Pending on a successful hire", "(D) At the start of the school year"], ans: 2, t_q: "91. Khi nào trường sẽ không nhận hồ sơ xin việc nữa?", t_opts: ["(A) Sau khoảng thời gian 30 ngày", "(B) Cho đến khi có một số lượng nhất định nộp đơn", "(C) Đang chờ một đợt tuyển dụng thành công (Open Until Filled)", "(D) Khi bắt đầu năm học"] },
+                    { id: 92, q: "92. What quality does the school desire in their new teacher?", opts: ["(A) Advanced college degree", "(B) High academic expectations", "(C) Related professional experience", "(D) Previous teaching experience"], ans: 2, t_q: "92. Nhà trường mong muốn phẩm chất gì ở giáo viên mới của họ?", t_opts: ["(A) Bằng đại học nâng cao", "(B) Kỳ vọng học tập cao", "(C) Có kinh nghiệm chuyên môn liên quan", "(D) Kinh nghiệm giảng dạy trước đây"] },
+                    { id: 93, q: "93. To which job posting section does Megan refer in the last paragraph?", opts: ["(A) Summary Information", "(B) Job Title", "(C) Salary History", "(D) Job Location"], ans: 0, t_q: "93. Megan đề cập đến phần đăng tuyển dụng nào trong đoạn cuối?", t_opts: ["(A) Thông tin tóm tắt (hoặc Tóm tắt công việc)", "(B) Chức danh công việc", "(C) Lịch sử lương", "(D) Vị trí công việc"] },
+                    { id: 94, q: "94. What is true about Megan's work history?", opts: ["(A) She was recently fired.", "(B) She has never taught.", "(C) She has had two professions.", "(D) She graduated from two universities."], ans: 2, t_q: "94. Điều gì đúng về lịch sử làm việc của Megan?", t_opts: ["(A) Gần đây cô ấy đã bị sa thải.", "(B) Cô ấy chưa bao giờ đi dạy.", "(C) Cô ấy đã có hai nghề nghiệp (thiết kế và dạy học).", "(D) Cô ấy tốt nghiệp từ hai trường đại học."] },
+                    { id: 95, q: "95. Why will Ms. Simpson probably NOT be chosen?", opts: ["(A) She must move often because of her husband.", "(B) Mr. Kieslowski' books are considered best-selling.", "(C) The prospect of construction industry is murky.", "(D) She did not write her own books."], ans: 3, t_q: "95. Tại sao cô Simpson có thể KHÔNG được chọn?", t_opts: ["(A) Cô ấy phải di chuyển thường xuyên vì chồng mình.", "(B) Sách của ông Kieslowski được coi là bán chạy nhất.", "(C) Triển vọng của ngành xây dựng còn mờ mịt.", "(D) Cô ấy đã không tự viết sách (thiếu xuất bản/kinh nghiệm nước ngoài)."] }
+                ]
+            },
+            {
+                title: "Questions 96-100 refer to the following invitation, e-mail and book review.",
+                content: `
+                    <p><b>Wednesday Book Club</b></p>
+                    <p>Join other readers in a lively discussion of the written word. This month's focus will be on the bestseller <i>The Lovely</i> on February 23 at 1:30 PM. Jeanice Wallace describes this book as a "true-life novel" written from the point of view of the author's West Texan grandmother Lisa Carey. The Carey Clan, including the author herself, has resided in Texas for over 2 centuries. The novel chronicles Lisa Carey's life as the spunky, energetic daughter of an ex-convict and a pious, God-fearing mother who leaves home to see the country with a traveling circus.</p>
+                    <p>Bring your best homemade dish to share as we settle in for an enjoyable evening of books, friends, and food.</p>
+                    <hr>
+                    <table>
+                        <tr><td><b>Date:</b></td><td>February 1</td></tr>
+                        <tr><td><b>To:</b></td><td>jwallace@mail.com</td></tr>
+                        <tr><td><b>From:</b></td><td>sgrant@mail.com</td></tr>
+                        <tr><td><b>Subject:</b></td><td>The Lovely discussion</td></tr>
+                    </table>
+                    <p>Dear Ms. Wallace,</p>
+                    <p>We have a friend in common, Robert Green, who gave me your e-mail address. I hope that is okay. My book club is going to be discussing your book <i>The Lovely</i> on February 23. I was hoping there might be some chance you would be willing either to provide us with some insights or discussion items or, even better, to join us in a lively discussion of your book.</p>
+                    <p>Because you are a local author, we plan to read one of your books every year. In the past, we have read your books <i>August Moon</i> and <i>Spreading Her Wings</i>. We would really appreciate anything you might be willing to contribute to make our discussion of <i>The Lovely</i> as good as possible.</p>
+                    <p>I heard that your new book will come out soon. I think it will be selected as the next book of our reading club.</p>
+                    <p>Sincerely,<br>Sarah Grant</p>
+                    <hr>
+                    <p><b>What if...</b><br>by Belinda Carlyle</p>
+                    <p>I don't know how she has done it, but it seems that author Jeanice Wallace, at her sixth novel <i>What if</i>, has invented a literary time machine to take the readers back to the moments of their life that they would regret. <i>What if</i> will make you think, laugh and weep a witty, artful balancing act of the normal and extraordinary with which all readers, but especially young women, will identify.</p>
+                `,
+                questions: [
+                    { id: 96, q: "96. What is mentioned about The Lovely?", opts: ["(A) It will be adapted for a movie.", "(B) It is about homemade foods in Texas.", "(C) It is based on Lisa Carey's life.", "(D) It is not yet available at stores."], ans: 2, t_q: "96. Điều gì được đề cập về 'The Lovely'?", t_opts: ["(A) Nó sẽ được chuyển thể thành phim.", "(B) Đó là về các món ăn tự làm ở Texas.", "(C) Nó dựa trên cuộc đời của Lisa Carey.", "(D) Nó vẫn chưa có mặt tại các cửa hàng."] },
+                    { id: 97, q: "97. What is suggested about the book club?", opts: ["(A) It was started by Jeanice Wallace.", "(B) It was recently formed.", "(C) The members reside in Texas.", "(D) It meets every Thursday."], ans: 2, t_q: "97. Điều gì được gợi ý về câu lạc bộ sách?", t_opts: ["(A) Nó được bắt đầu bởi Jeanice Wallace.", "(B) Nó mới được thành lập gần đây.", "(C) Các thành viên cư trú tại Texas (vì Wallace là tác giả địa phương).", "(D) Nó họp vào thứ năm hàng tuần."] },
+                    { id: 98, q: "98. What are the book club members asked to do?", opts: ["(A) Bring a friend who is interested in joining the group", "(B) Come with a list of future reading suggestions", "(C) Prepare a dish to share with the group", "(D) Be prepared to ask the author questions"], ans: 2, t_q: "98. Các thành viên câu lạc bộ sách được yêu cầu làm gì?", t_opts: ["(A) Dẫn theo một người bạn muốn tham gia nhóm", "(B) Đi kèm với một danh sách các đề xuất đọc trong tương lai", "(C) Chuẩn bị một món ăn để chia sẻ với cả nhóm", "(D) Chuẩn bị sẵn sàng để đặt câu hỏi cho tác giả"] },
+                    { id: 99, q: "99. How did Ms. Grant get Ms. Wallace's e-mail address?", opts: ["(A) She got it from the author's website.", "(B) The book jacket contains her contact information.", "(C) The author's publisher gave it to her.", "(D) They have a mutual acquaintance who shared it."], ans: 3, t_q: "99. Làm thế nào cô Grant có được địa chỉ e-mail của cô Wallace?", t_opts: ["(A) Cô ấy lấy nó từ trang web của tác giả.", "(B) Bìa sách chứa thông tin liên lạc của cô ấy.", "(C) Nhà xuất bản của tác giả đã đưa nó cho cô ấy.", "(D) Họ có một người quen chung đã chia sẻ nó."] },
+                    { id: 100, q: "100. What is true about Ms. Wallace?", opts: ["(A) Ms. Carlyle has met her before.", "(B) She has written more than 5 books.", "(C) Ms. Grant has read all of her books.", "(D) She has planned to move to another state."], ans: 1, t_q: "100. Điều gì là đúng về cô Wallace?", t_opts: ["(A) Cô Carlyle đã gặp cô ấy trước đây.", "(B) Cô ấy đã viết nhiều hơn 5 cuốn sách (vì What if là cuốn tiểu thuyết thứ sáu).", "(C) Cô Grant đã đọc tất cả sách của cô ấy.", "(D) Cô ấy đã lên kế hoạch chuyển đến một tiểu bang khác."] }
+                ]
+	
+            }
+        ];
+
+	// ==========================================
+        // DATA LISTENING - PART 1 (Câu 1 - 6) 
+        // ==========================================
+        const part1Data = [
+            { id: 101, image_src: "./assets/images/Part 1/Ảnh 1.png",
+		       audio_src: "./assets/audio/Part 1/Q1.mp3",
+		       q: "1. Look at the picture marked number 1 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 1, t_q: "1. Nhìn vào bức tranh số 1.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] },
+            { id: 102, image_src: "./assets/images/Part 1/Ảnh 2.png",
+		       audio_src: "./assets/audio/Part 1/Q2.mp3",
+		       q: "2. Look at the picture marked number 2 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 0, t_q: "2. Nhìn vào bức tranh số 2.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] },
+            { id: 103, image_src: "./assets/images/Part 1/Ảnh 3.png",
+		       audio_src: "./assets/audio/Part 1/Q3.mp3",
+		       q: "3. Look at the picture marked number 3 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 2, t_q: "3. Nhìn vào bức tranh số 3.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] },
+            { id: 104, image_src: "./assets/images/Part 1/Ảnh 4.png",
+		       audio_src: "./assets/audio/Part 1/Q4.mp3",
+  		       q: "4. Look at the picture marked number 4 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 2, t_q: "4. Nhìn vào bức tranh số 4.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] },
+            { id: 105, image_src: "./assets/images/Part 1/Ảnh 5.png",
+		       audio_src: "./assets/audio/Part 1/Q5.mp3",
+		       q: "5. Look at the picture marked number 5 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 3, t_q: "5. Nhìn vào bức tranh số 5.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] },
+            { id: 106, image_src: "./assets/images/Part 1/Ảnh 6.png",
+		       audio_src: "./assets/audio/Part 1/Q6.mp3",
+		       q: "6. Look at the picture marked number 6 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 2, t_q: "6. Nhìn vào bức tranh số 6.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] }
+        ];
+	
+	// ==========================================
+        // DATA LISTENING - PART 2 (Câu 7 - 31) 
+        // ==========================================
+        const part2Data = [
+            { id: 107, q: "7. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "7. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 108, q: "8. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "8. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 109, q: "9. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "9. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 110, q: "10. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "10. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 111, q: "11. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "11. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 112, q: "12. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "12. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 113, q: "13. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "13. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 114, q: "14. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "14. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 115, q: "15. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "15. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 116, q: "16. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "16. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 117, q: "17. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "17. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 118, q: "18. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "18. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 119, q: "19. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "19. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 120, q: "20. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "20. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 121, q: "21. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "21. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 122, q: "22. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "22. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 123, q: "23. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "23. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 124, q: "24. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 1, t_q: "24. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: B
+            { id: 125, q: "25. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "25. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 126, q: "26. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "26. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 127, q: "27. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 0, t_q: "27. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: A
+            { id: 128, q: "28. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "28. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 129, q: "29. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "29. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 130, q: "30. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "30. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }, // Ans: C
+            { id: 131, q: "31. Mark your answer on your answer sheet.", opts: ["(A)", "(B)", "(C)"], ans: 2, t_q: "31. Chọn đáp án đúng.", t_opts: ["(A)", "(B)", "(C)"] }  // Ans: C
+        ];
+
+	// ==========================================
+        // DATA LISTENING - PART 3 (Câu 32 - 70) 
+        // ==========================================
+        const part3Data = [
+            {
+                title: "Questions 32-34 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 132, q: "32. Where do the speakers most likely work?", opts: ["(A) At a bank", "(B) At a hotel", "(C) At an electronics store", "(D) At a medical clinic"], ans: 1, t_q: "[Dịch] 32. Where do the speakers most likely work?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 133, q: "33. What most likely is the man's job?", opts: ["(A) Receptionist", "(B) Security guard", "(C) Cleaning staff member", "(D) Computer technician"], ans: 3, t_q: "[Dịch] 33. What most likely is the man's job?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 134, q: "34. What will the woman give the man?", opts: ["(A) A schedule", "(B) A key", "(C) A manual", "(D) A cup of coffee"], ans: 1, t_q: "[Dịch] 34. What will the woman give the man?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 35-37 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 135, q: "35. Who most likely is the woman?", opts: ["(A) A receptionist", "(B) A florist", "(C) A repair technician", "(D) A woodworker"], ans: 0, t_q: "[Dịch] 35. Who most likely is the woman?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 136, q: "36. Why is the man calling?", opts: ["(A) To clarify a process", "(B) To ask about a delivery", "(C) To request a service", "(D) To complain about an invoice"], ans: 2, t_q: "[Dịch] 36. Why is the man calling?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 137, q: "37. What does the woman ask the man for?", opts: ["(A) A photograph", "(B) An address", "(C) A telephone number", "(D) A passcode"], ans: 1, t_q: "[Dịch] 37. What does the woman ask the man for?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 38-40 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 138, q: "38. What does the man ask the woman about?", opts: ["(A) A shirt size", "(B) A shirt price", "(C) A warehouse location", "(D) Store hours"], ans: 0, t_q: "[Dịch] 38. What does the man ask the woman about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 139, q: "39. What does the woman offer to do?", opts: ["(A) Unlock a fitting room", "(B) Look for a different color shirt", "(C) Send a shirt to the man's home", "(D) Put a shirt back on a shelf"], ans: 2, t_q: "[Dịch] 39. What does the woman offer to do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 140, q: "40. What will the man most likely do?", opts: ["(A) Contact a manufacturer", "(B) Come back tomorrow", "(C) Look through a catalog", "(D) Visit a different store"], ans: 3, t_q: "[Dịch] 40. What will the man most likely do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 41-43 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 141, q: "41. Who is Sofia?", opts: ["(A) A teacher", "(B) An artist", "(C) A real estate agent", "(D) A gallery owner"], ans: 3, t_q: "[Dịch] 41. Who is Sofia?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 142, q: "42. What are the men curious about?", opts: ["(A) The creator of some artwork", "(B) The lighting in a room", "(C) The number of people at an event", "(D) How long a business has been open"], ans: 2, t_q: "[Dịch] 42. What are the men curious about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 143, q: "43. What will the speakers most likely do next?", opts: ["(A) Purchase a painting", "(B) Eat a meal together", "(C) Review some floor plans", "(D) Look at some artwork"], ans: 3, t_q: "[Dịch] 43. What will the speakers most likely do next?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 44-46 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 144, q: "44. What kind of product are the speakers discussing?", opts: ["(A) A laptop", "(B) A mobile phone", "(C) A fitness tracker", "(D) A navigation device"], ans: 1, t_q: "[Dịch] 44. What kind of product are the speakers discussing?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 145, q: "45. What does the woman say she is currently working on?", opts: ["(A) A marketing campaign", "(B) A transportation contract", "(C) A fee negotiation", "(D) A design feature"], ans: 0, t_q: "[Dịch] 45. What does the woman say she is currently working on?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 146, q: "46. What is the man concerned about?", opts: ["(A) Staff shortages", "(B) Supply chain disruptions", "(C) Budget constraints", "(D) Increased competition"], ans: 3, t_q: "[Dịch] 46. What is the man concerned about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 47-49 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 147, q: "47. What does the woman hope to do this year?", opts: ["(A) Earn a promotion", "(B) Win an award", "(C) Give a presentation", "(D) Move to a different city"], ans: 1, t_q: "[Dịch] 47. What does the woman hope to do this year?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 148, q: "48. What does the woman mean when she says, 'some of the numbers in my presentation came from you'?", opts: ["(A) She is grateful for the man's help.", "(B) She thinks someone else got credit by mistake.", "(C) The man should check the accuracy of some numbers.", "(D) The man should also give a presentation."], ans: 0, t_q: "[Dịch] 48. What does the woman mean when she says...", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 149, q: "49. What does the man remind the woman about?", opts: ["(A) A team meeting has been canceled.", "(B) A product will be released soon.", "(C) A report will not be distributed.", "(D) A task needs to be done."], ans: 3, t_q: "[Dịch] 49. What does the man remind the woman about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 50-52 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 150, q: "50. What does the man say will happen tomorrow?", opts: ["(A) New equipment will be installed.", "(B) An inspection will take place.", "(C) A delivery will be late.", "(D) The water will be shut off."], ans: 3, t_q: "[Dịch] 50. What does the man say will happen tomorrow?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 151, q: "51. Where do the speakers most likely work?", opts: ["(A) At a factory", "(B) At a grocery store", "(C) At a restaurant", "(D) At a shipping company"], ans: 2, t_q: "[Dịch] 51. Where do the speakers most likely work?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 152, q: "52. What does the man say he will do?", opts: ["(A) Conduct an interview", "(B) Reschedule a training session", "(C) Contact staff members", "(D) Clean some filters"], ans: 2, t_q: "[Dịch] 52. What does the man say he will do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 53-55 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 153, q: "53. What did the man just do?", opts: ["(A) He purchased a computer.", "(B) He installed some software.", "(C) He returned from a doctor's appointment.", "(D) He created a training video."], ans: 1, t_q: "[Dịch] 53. What did the man just do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 154, q: "54. According to the man, why has a product become popular?", opts: ["(A) It is less expensive than similar products.", "(B) It is energy efficient.", "(C) It provides easy access to information.", "(D) It has 24-hour customer support."], ans: 2, t_q: "[Dịch] 54. According to the man, why has a product become popular?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 155, q: "55. Why does Francesca interrupt the conversation?", opts: ["(A) She needs assistance", "(B) She is taking lunch orders.", "(C) Some forms require a signature.", "(D) A client has arrived."], ans: 2, t_q: "[Dịch] 55. Why does Francesca interrupt the conversation?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 56-58 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 156, q: "56. Where does the conversation most likely take place?", opts: ["(A) At a restaurant", "(B) At a shipping dock", "(C) At a supermarket", "(D) At a farm"], ans: 2, t_q: "[Dịch] 56. Where does the conversation most likely take place?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 157, q: "57. What does the man say is popular?", opts: ["(A) A colorful package design", "(B) A self-service machine", "(C) A same-day delivery service", "(D) A television advertisement"], ans: 1, t_q: "[Dịch] 57. What does the man say is popular?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 158, q: "58. What does the man suggest doing?", opts: ["(A) Issuing a refund", "(B) Waiting for some data", "(C) Hiring more staff", "(D) Rearranging some merchandise"], ans: 1, t_q: "[Dịch] 58. What does the man suggest doing?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 59-61 refer to the following conversation.",
+                content: "",
+                questions: [
+                    { id: 159, q: "59. Which industry do the speakers most likely work in?", opts: ["(A) Tourism", "(B) Agriculture", "(C) Engineering", "(D) Education"], ans: 2, t_q: "[Dịch] 59. Which industry do the speakers most likely work in?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 160, q: "60. What does the man say he is concerned about?", opts: ["(A) Space", "(B) Safety", "(C) Competition", "(D) Expenses"], ans: 0, t_q: "[Dịch] 60. What does the man say he is concerned about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 161, q: "61. What does the man agree to do?", opts: ["(A) Apply for some funding", "(B) Organize a business trip", "(C) Do some research", "(D) Assemble a work crew"], ans: 2, t_q: "[Dịch] 61. What does the man agree to do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 62-64 refer to the following conversation and list.",
+                content: `<img src="./assets/images/Part 3/Ảnh 1.png" style="width: 100%; max-width: 300px; display: block; margin: 0 auto 15px; border: 1px solid #ddd; border-radius: 8px;">`,
+                questions: [
+                    { id: 162, q: "62. What does the woman remind the man about?", opts: ["(A) She needs to stop at a store.", "(B) She used to live in the area.", "(C) She attended a seminar last year.", "(D) She has just bought a new car."], ans: 1, t_q: "[Dịch] 62. What does the woman remind the man about?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 163, q: "63. Look at the graphic. Which exit will the speakers take?", opts: ["(A) Maple Road", "(B) Carter Lane", "(C) High Road", "(D) Berk Street"], ans: 3, t_q: "[Dịch] 63. Look at the graphic. Which exit will the speakers take?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 164, q: "64. What will the man ask his coworkers to do?", opts: ["(A) Save some seats", "(B) Cancel a reservation", "(C) Sign in at an event.", "(D) Print some materials"], ans: 0, t_q: "[Dịch] 64. What will the man ask his coworkers to do?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 65-67 refer to the following conversation and graphic.",
+                content: `<img src="./assets/images/Part 3/Ảnh 2.png" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border: 1px solid #ddd; border-radius: 8px;">`,
+                questions: [
+                    { id: 165, q: "65. Where does the conversation most likely take place?", opts: ["(A) At a hotel", "(B) At a school", "(C) At a doctor's office", "(D) At an accounting firm"], ans: 1, t_q: "[Dịch] 65. Where does the conversation most likely take place?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 166, q: "66. Look at the graphic. Which bin will the man use?", opts: ["(A) Bin 1", "(B) Bin 2", "(C) Bin 3", "(D) Bin 4"], ans: 2, t_q: "[Dịch] 66. Look at the graphic. Which bin will the man use?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 167, q: "67. What does the woman suggest?", opts: ["(A) Giving an assignment to a colleague", "(B) Waiting for a confirmation", "(C) Using a cart", "(D) Rescheduling an appointment with a client"], ans: 2, t_q: "[Dịch] 67. What does the woman suggest?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            },
+            {
+                title: "Questions 68-70 refer to the following conversation and invitation.",
+                content: `<img src="./assets/images/Part 3/Ảnh 3.png" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border: 1px solid #ddd; border-radius: 8px;">`,
+                questions: [
+                    { id: 168, q: "68. What type of event are the speakers organizing?", opts: ["(A) A fund-raiser", "(B) A grand-opening celebration", "(C) A foreign official's reception", "(D) An award ceremony"], ans: 0, t_q: "[Dịch] 68. What type of event are the speakers organizing?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 169, q: "69. Look at the graphic. What time does the man think the music should begin?", opts: ["(A) At 5:00 P.M.", "(B) At 6:00 P.M.", "(C) At 7:00 P.M.", "(D) At 8:00 P.M."], ans: 1, t_q: "[Dịch] 69. Look at the graphic. What time does the man think the music should begin?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] },
+                    { id: 170, q: "70. What information does the man suggest adding to the invitation?", opts: ["(A) The location of a concert hall", "(B) The name of a sponsor", "(C) A Web site address", "(D) A list of performers"], ans: 1, t_q: "[Dịch] 70. What information does the man suggest adding to the invitation?", t_opts: ["(A) ...", "(B) ...", "(C) ...", "(D) ..."] }
+                ]
+            }
+        ];
+
+	// ==========================================
+        // DATA LISTENING - PART 4 (Câu 71 - 100) 
+        // ==========================================
+        const part4Data = [
+            {
+                title: "Questions 71-73 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 171, q: "71. Who most likely is the listener?", opts: ["(A) A school secretary", "(B) A farmer", "(C) A delivery driver", "(D) A restaurant manager"], ans: 3, t_q: "71. Người nghe có khả năng là ai nhất?", t_opts: ["(A) Một thư ký trường học", "(B) Một nông dân", "(C) Một tài xế giao hàng", "(D) Một quản lý nhà hàng"] },
+                    { id: 172, q: "72. What problem does the speaker mention?", opts: ["(A) An employee is on vacation.", "(B) An item is not available.", "(C) The cost of an item has changed.", "(D) An order was processed incorrectly."], ans: 1, t_q: "72. Người nói đề cập đến vấn đề gì?", t_opts: ["(A) Một nhân viên đang đi nghỉ.", "(B) Một mặt hàng không có sẵn.", "(C) Giá của một mặt hàng đã thay đổi.", "(D) Một đơn hàng được xử lý sai."] },
+                    { id: 173, q: "73. What does the speaker ask the listener to do?", opts: ["(A) Confirm a flower choice", "(B) Approve a new delivery time", "(C) Submit a receipt", "(D) Call a different store"], ans: 0, t_q: "73. Người nói yêu cầu người nghe làm gì?", t_opts: ["(A) Xác nhận việc chọn hoa", "(B) Chấp thuận thời gian giao hàng mới", "(C) Nộp biên lai", "(D) Gọi cho một cửa hàng khác"] }
+                ]
+            },
+            {
+                title: "Questions 74-76 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 174, q: "74. What service does Prospective provide?", opts: ["(A) Employee recruiting", "(B) Technology support", "(C) Digital marketing", "(D) Customized printing"], ans: 0, t_q: "74. Prospective cung cấp dịch vụ gì?", t_opts: ["(A) Tuyển dụng nhân viên", "(B) Hỗ trợ công nghệ", "(C) Tiếp thị kỹ thuật số", "(D) In ấn tùy chỉnh"] },
+                    { id: 175, q: "75. What recent improvement did Prospective make?", opts: ["(A) It matches competitor prices.", "(B) It sends updates regularly.", "(C) It offers personalized consultations.", "(D) It provides international service."], ans: 1, t_q: "75. Gần đây Prospective đã thực hiện cải tiến gì?", t_opts: ["(A) Khớp giá với đối thủ cạnh tranh.", "(B) Gửi cập nhật thường xuyên.", "(C) Cung cấp tư vấn cá nhân hóa.", "(D) Cung cấp dịch vụ quốc tế."] },
+                    { id: 176, q: "76. How can the listeners try Prospective for free?", opts: ["(A) By entering a contest", "(B) By calling a radio station", "(C) By visiting a business", "(D) By completing a survey"], ans: 3, t_q: "76. Làm thế nào người nghe có thể dùng thử Prospective miễn phí?", t_opts: ["(A) Bằng cách tham gia một cuộc thi", "(B) Bằng cách gọi cho một đài phát thanh", "(C) Bằng cách đến thăm một doanh nghiệp", "(D) Bằng cách hoàn thành một cuộc khảo sát"] }
+                ]
+            },
+            {
+                title: "Questions 77-79 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 177, q: "77. Who most likely is the speaker?", opts: ["(A) A property inspector", "(B) A real estate agent", "(C) An electrician", "(D) An architect"], ans: 1, t_q: "77. Người nói có khả năng là ai nhất?", t_opts: ["(A) Một thanh tra viên bất động sản", "(B) Một đại lý bất động sản", "(C) Một thợ điện", "(D) Một kiến trúc sư"] },
+                    { id: 178, q: "78. What is the problem with a property?", opts: ["(A) A roof is leaking.", "(B) A wall needs to be reinforced.", "(C) Some wiring needs to be updated.", "(D) Some windows need to be replaced."], ans: 2, t_q: "78. Có vấn đề gì với một bất động sản?", t_opts: ["(A) Mái nhà bị dột.", "(B) Bức tường cần được gia cố.", "(C) Một số đường dây điện cần được cập nhật.", "(D) Một số cửa sổ cần được thay thế."] },
+                    { id: 179, q: "79. What does the speaker imply when she says, 'the process normally takes a long time'?", opts: ["(A) This case may be an exception.", "(B) Hiring more workers is advisable.", "(C) A store opening may be delayed.", "(D) The listener should submit a form soon."], ans: 2, t_q: "79. Người nói ngụ ý điều gì khi nói, 'quá trình này thường mất nhiều thời gian'?", t_opts: ["(A) Trường hợp này có thể là một ngoại lệ.", "(B) Nên thuê thêm công nhân.", "(C) Việc khai trương cửa hàng có thể bị trì hoãn.", "(D) Người nghe nên sớm nộp một biểu mẫu."] }
+                ]
+            },
+            {
+                title: "Questions 80-82 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 180, q: "80. What type of work are the listeners training for?", opts: ["(A) Construction", "(B) Real estate", "(C) Manufacturing", "(D) Truck driving"], ans: 3, t_q: "80. Người nghe đang đào tạo cho loại công việc gì?", t_opts: ["(A) Xây dựng", "(B) Bất động sản", "(C) Sản xuất", "(D) Lái xe tải"] },
+                    { id: 181, q: "81. What recent change does the speaker mention?", opts: ["(A) Inspections are taking place more frequently.", "(B) Information must be entered electronically.", "(C) A training course has been shortened.", "(D) Membership fees have decreased."], ans: 1, t_q: "81. Người nói đề cập đến thay đổi gần đây nào?", t_opts: ["(A) Các cuộc kiểm tra đang diễn ra thường xuyên hơn.", "(B) Thông tin phải được nhập dưới dạng điện tử.", "(C) Một khóa đào tạo đã được rút ngắn.", "(D) Phí thành viên đã giảm."] },
+                    { id: 182, q: "82. According to the speaker, why is it a good time to enter a profession?", opts: ["(A) Pay is high.", "(B) Schedules are flexible.", "(C) Certification requirements are not strict.", "(D) Technological innovations are expected."], ans: 0, t_q: "82. Theo người nói, tại sao đây là thời điểm tốt để bước vào một nghề nghiệp?", t_opts: ["(A) Mức lương cao.", "(B) Lịch trình linh hoạt.", "(C) Yêu cầu chứng nhận không khắt khe.", "(D) Những đổi mới về công nghệ được mong đợi."] }
+                ]
+            },
+            {
+                title: "Questions 83-85 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 183, q: "83. What event is the speaker reporting on?", opts: ["(A) A holiday parade", "(B) A speech by the city mayor", "(C) An opening ceremony", "(D) A building demolition"], ans: 2, t_q: "83. Người nói đang báo cáo về sự kiện gì?", t_opts: ["(A) Một cuộc diễu hành ngày lễ", "(B) Bài phát biểu của thị trưởng thành phố", "(C) Một buổi lễ khai trương", "(D) Việc phá dỡ một tòa nhà"] },
+                    { id: 184, q: "84. What news did officials share earlier in the year?", opts: ["(A) Traffic was lighter than projected.", "(B) Work was being done faster than expected.", "(C) Additional workers would be hired.", "(D) A project budget was being revised."], ans: 1, t_q: "84. Đầu năm nay các quan chức đã chia sẻ tin tức gì?", t_opts: ["(A) Giao thông thưa thớt hơn dự kiến.", "(B) Công việc đang được thực hiện nhanh hơn dự kiến.", "(C) Sẽ thuê thêm công nhân.", "(D) Ngân sách dự án đang được sửa đổi."] },
+                    { id: 185, q: "85. Who did the speaker interview?", opts: ["(A) Some construction engineers", "(B) A local store owner", "(C) A government official", "(D) Some delivery drivers"], ans: 3, t_q: "85. Người nói đã phỏng vấn ai?", t_opts: ["(A) Một số kỹ sư xây dựng", "(B) Chủ cửa hàng địa phương", "(C) Quan chức chính phủ", "(D) Một số tài xế giao hàng"] }
+                ]
+            },
+            {
+                title: "Questions 86-88 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 186, q: "86. What industry does the speaker most likely work in?", opts: ["(A) Finance", "(B) Advertising", "(C) Architecture", "(D) Technology"], ans: 3, t_q: "86. Người nói có khả năng nhất làm việc trong ngành nào?", t_opts: ["(A) Tài chính", "(B) Quảng cáo", "(C) Kiến trúc", "(D) Công nghệ"] },
+                    { id: 187, q: "87. What did the speaker learn yesterday?", opts: ["(A) He will be promoted to a management position.", "(B) The funding for a project has increased.", "(C) A client asked for work to be completed early.", "(D) A client complained about a company's service."], ans: 2, t_q: "87. Hôm qua người nói đã biết được điều gì?", t_opts: ["(A) Anh ấy sẽ được thăng chức lên vị trí quản lý.", "(B) Nguồn tài trợ cho một dự án đã tăng lên.", "(C) Một khách hàng yêu cầu công việc phải hoàn thành sớm.", "(D) Khách hàng đã phàn nàn về dịch vụ của công ty."] },
+                    { id: 188, q: "88. What does the speaker imply when he says, 'you usually do excellent work'?", opts: ["(A) He wants the listener to work on his team.", "(B) He is surprised that the listener made an error.", "(C) The listener is likely to receive a raise.", "(D) The listener should replace him as project manager."], ans: 0, t_q: "88. Người nói ngụ ý điều gì khi nói, 'bạn thường làm việc rất xuất sắc'?", t_opts: ["(A) Anh ấy muốn người nghe làm việc trong nhóm của mình.", "(B) Anh ấy ngạc nhiên khi người nghe mắc lỗi.", "(C) Người nghe có khả năng sẽ được tăng lương.", "(D) Người nghe nên thay thế anh ấy làm quản lý dự án."] }
+                ]
+            },
+            {
+                title: "Questions 89-91 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 189, q: "89. What news does the speaker report?", opts: ["(A) The company is planning to expand.", "(B) The company exceeded its sales target.", "(C) New computers will be distributed.", "(D) A business trip has been organized."], ans: 0, t_q: "89. Người nói báo cáo tin tức gì?", t_opts: ["(A) Công ty đang có kế hoạch mở rộng.", "(B) Công ty đã vượt mục tiêu doanh số.", "(C) Máy tính mới sẽ được phân phát.", "(D) Một chuyến công tác đã được tổ chức."] },
+                    { id: 190, q: "90. What department do the listeners work in?", opts: ["(A) Quality Control", "(B) Human Resources", "(C) Data Analytics", "(D) Customer Service"], ans: 2, t_q: "90. Người nghe làm việc ở bộ phận nào?", t_opts: ["(A) Kiểm soát chất lượng", "(B) Nhân sự", "(C) Phân tích Dữ liệu", "(D) Dịch vụ Khách hàng"] },
+                    { id: 191, q: "91. What does the speaker say he will do?", opts: ["(A) Order some supplies", "(B) E-mail an agenda", "(C) Fix some software", "(D) Upload some files"], ans: 3, t_q: "91. Người nói nói anh ấy sẽ làm gì?", t_opts: ["(A) Đặt một số vật tư", "(B) Gửi email chương trình nghị sự", "(C) Sửa một số phần mềm", "(D) Tải lên một số tệp"] }
+                ]
+            },
+            {
+                title: "Questions 92-94 refer to the following talk.",
+                content: "",
+                questions: [
+                    { id: 192, q: "92. What is being reported on?", opts: ["(A) The purchase of a baseball team", "(B) The signing of a baseball player", "(C) The construction of a baseball stadium", "(D) The retirement of a baseball coach"], ans: 0, t_q: "92. Điều gì đang được báo cáo?", t_opts: ["(A) Việc mua lại một đội bóng chày", "(B) Việc ký hợp đồng với một cầu thủ bóng chày", "(C) Việc xây dựng một sân vận động bóng chày", "(D) Sự nghỉ hưu của một huấn luyện viên bóng chày"] },
+                    { id: 193, q: "93. What does the speaker say Mr. Abalora is passionate about?", opts: ["(A) Job creation", "(B) Community building", "(C) Local news reporting", "(D) Innovative thinking"], ans: 1, t_q: "93. Người nói nói ông Abalora đam mê điều gì?", t_opts: ["(A) Tạo việc làm", "(B) Xây dựng cộng đồng", "(C) Báo cáo tin tức địa phương", "(D) Suy nghĩ đổi mới"] },
+                    { id: 194, q: "94. Why does the speaker say, 'we've been told that before'?", opts: ["(A) To express doubt", "(B) To support a decision", "(C) To correct a colleague", "(D) To reinforce an instruction"], ans: 0, t_q: "94. Tại sao người nói lại nói, 'chúng tôi đã được thông báo điều đó trước đây'?", t_opts: ["(A) Để bày tỏ sự nghi ngờ", "(B) Để hỗ trợ một quyết định", "(C) Để sửa sai cho một đồng nghiệp", "(D) Để củng cố một hướng dẫn"] }
+                ]
+            },
+            {
+                title: "Questions 95-97 refer to the following talk and pie chart.",
+                content: `<img src="./assets/images/Part 4/Ảnh 1.png" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border: 1px solid #ddd; border-radius: 8px;">`,
+                questions: [
+                    { id: 195, q: "95. Who are the listeners?", opts: ["(A) Investors", "(B) Sales staff", "(C) Fitness trainers", "(D) Manufacturing executives"], ans: 1, t_q: "95. Những người nghe là ai?", t_opts: ["(A) Nhà đầu tư", "(B) Nhân viên bán hàng", "(C) Huấn luyện viên thể hình", "(D) Giám đốc sản xuất"] },
+                    { id: 196, q: "96. What does the speaker hope will happen?", opts: ["(A) The assembly process will be completed more efficiently.", "(B) Customers will be told about Kolee's high-quality products.", "(C) Customers will use exercise bicycles rather than treadmills.", "(D) Kolee's manufacturing will be done at a different plant."], ans: 1, t_q: "96. Người nói hy vọng điều gì sẽ xảy ra?", t_opts: ["(A) Quá trình lắp ráp sẽ được hoàn thành hiệu quả hơn.", "(B) Khách hàng sẽ được kể về các sản phẩm chất lượng cao của Kolee.", "(C) Khách hàng sẽ sử dụng xe đạp tập thể dục thay vì máy chạy bộ.", "(D) Việc sản xuất của Kolee sẽ được thực hiện tại một nhà máy khác."] },
+                    { id: 197, q: "97. Look at the graphic. What type of exercise equipment does the speaker say is new for the company?", opts: ["(A) Rowing machines", "(B) Exercise bicycles", "(C) Treadmills", "(D) Weight lifting benches"], ans: 0, t_q: "97. Nhìn vào biểu đồ. Người nói cho biết loại thiết bị tập thể dục nào là mới đối với công ty?", t_opts: ["(A) Máy chèo thuyền", "(B) Xe đạp tập thể dục", "(C) Máy chạy bộ", "(D) Băng ghế cử tạ"] }
+                ]
+            },
+            {
+                title: "Questions 98-100 refer to the following talk and directory.",
+                content: `<img src="./assets/images/Part 4/Ảnh 2.png" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border: 1px solid #ddd; border-radius: 8px;">`,
+                questions: [
+                    { id: 198, q: "98. What is the speaker pleased to announce?", opts: ["(A) A special exhibit", "(B) A new education director", "(C) Learning activities for teens", "(D) Discounted museum tickets"], ans: 2, t_q: "98. Người nói vui mừng thông báo điều gì?", t_opts: ["(A) Một cuộc triển lãm đặc biệt", "(B) Một giám đốc giáo dục mới", "(C) Các hoạt động học tập cho thanh thiếu niên", "(D) Vé bảo tàng được giảm giá"] },
+                    { id: 199, q: "99. What does the speaker say about science camps?", opts: ["(A) A registration deadline has changed.", "(B) No more spaces are available.", "(C) A payment plan has been added.", "(D) Some classes will be held in a different location."], ans: 0, t_q: "99. Người nói nói gì về các trại khoa học?", t_opts: ["(A) Hạn chót đăng ký đã thay đổi.", "(B) Không còn chỗ trống.", "(C) Kế hoạch thanh toán đã được thêm vào.", "(D) Một số lớp học sẽ được tổ chức ở một địa điểm khác."] },
+                    { id: 200, q: "100. Look at the graphic. Who can the listeners speak to by pressing seven?", opts: ["(A) Sabine Klein", "(B) Ji-Soo Jeong", "(C) Carmen Ruiz", "(D) Brian Hughes"], ans: 2, t_q: "100. Nhìn vào biểu đồ. Người nghe có thể nói chuyện với ai bằng cách nhấn phím bảy?", t_opts: ["(A) Sabine Klein", "(B) Ji-Soo Jeong", "(C) Carmen Ruiz", "(D) Brian Hughes"] }
+                ]
+            }
+        ];
+
+        let currentActiveQuestions = []; 
+
+        function startQuiz(type) {
+    		currentQuizType = type; // Lưu lại loại quiz khi bắt đầu
+
+		clearInterval(timerInterval); // Reset đồng hồ mỗi khi chuyển trang
+    		document.getElementById('countdown-timer').style.display = 'none'; // Giấu đồng hồ mặc định
+    
+    		document.getElementById('home-page').style.display = 'none';
+    		document.getElementById('quiz-area').style.display = 'block';
+    
+    		// Reset trạng thái các nút ở cuối
+    		document.getElementById('submit-section').style.display = 'block';
+    		document.getElementById('btn-submit').style.display = 'inline-block';
+    		document.getElementById('btn-reset').style.display = 'none'; // Ẩn nút reset khi bắt đầu
+    		document.getElementById('score-display').style.display = 'none';
+
+		// --- CẬP NHẬT MỚI: Reset & Ẩn thanh Sticky Audio mặc định mỗi khi chuyển trang ---
+            	const audioContainer = document.getElementById('audio-container');
+            	const audioPlayer = document.getElementById('quiz-audio');
+            	const audioSource = document.getElementById('audio-source');
+            	if(audioPlayer) {
+                	audioPlayer.pause();
+                	audioPlayer.currentTime = 0;
+            	}
+            	if(audioContainer) audioContainer.style.display = 'none';
+            	// --------------------------------------------------------------------------------
+
+    		const container = document.getElementById('questions-container');
+    		const title = document.getElementById('quiz-title');
+    		container.innerHTML = ''; 
+    		currentActiveQuestions = [];
+
+    	if (type === 'part5') {
+        	title.innerText = 'Part 5: Incomplete Sentences';
+        	currentActiveQuestions = part5Data; // Gán data để chấm điểm
+        	renderQuestionsOnly(part5Data, container);
+
+	} else if (type === 'part1') {
+            title.innerText = 'Part 1: Photographs';
+            currentActiveQuestions = part1Data;
+            renderQuestionsOnly(part1Data, container);
+
+	} else if (type === 'part2') {
+            title.innerText = 'Part 2: Question-Response';
+            currentActiveQuestions = part2Data;
+            renderQuestionsOnly(part2Data, container);
+            
+            // Bật thanh Sticky Audio và load file âm thanh cho Part 2
+            if(audioContainer) {
+                audioContainer.style.display = 'block';
+                audioSource.src = "./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3"; // Tên file audio local của fen
+                audioPlayer.load(); // Bắt buộc phải có dòng này để trình duyệt nhận file mới
+            }
+
+	} else if (type === 'part3') {
+            title.innerText = 'Part 3: Conversations';
+            
+            // Gộp tất cả câu hỏi vào mảng chấm điểm (Giống hệt Part 6 & 7)
+            part3Data.forEach(passage => {
+                currentActiveQuestions = currentActiveQuestions.concat(passage.questions);
+            });
+            // Dùng hàm renderPassages để in giao diện (Nó tự chèn hình ảnh nếu có content)
+            renderPassages(part3Data, container);
+            
+            // Bật thanh Sticky Audio cho Part 3
+            if(audioContainer) {
+                audioContainer.style.display = 'block';
+                audioSource.src = "./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3"; // Tên file audio Part 3
+                audioPlayer.load();
+            }
+
+	} else if (type === 'part4') {
+            title.innerText = 'Part 4: Talks';
+            
+            // Gộp câu hỏi vào mảng chấm điểm
+            part4Data.forEach(passage => {
+                currentActiveQuestions = currentActiveQuestions.concat(passage.questions);
+            });
+            // Render giao diện Part 4
+            renderPassages(part4Data, container);
+            
+            // Bật thanh Sticky Audio cho Part 4
+            if(audioContainer) {
+                audioContainer.style.display = 'block';
+                audioSource.src = "./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3"; // Tên file audio Part 4 của fen
+                audioPlayer.load();
+            }
+        
+    	} else if (type === 'part6') {
+        	title.innerText = 'Part 6: Text Completion';
+        	// Đã fix lỗi quên gán data chấm điểm cho Part 6 🛠️
+        	part6Data.forEach(passage => {
+            		currentActiveQuestions = currentActiveQuestions.concat(passage.questions);
+        });
+        	renderPassages(part6Data, container);
+        
+    } else if (type === 'part7') {
+        title.innerText = 'Part 7: Reading Comprehension';
+        part7Data.forEach(passage => {
+            currentActiveQuestions = currentActiveQuestions.concat(passage.questions);
+        });
+        renderPassages(part7Data, container);
+        
+    } else if (type === 'full') {
+        // === LOGIC CHO FULL TEST ===
+        title.innerText = '🔥 Full Test: Reading Revision 🔥';
+        
+        // 1. In Part 5 ra màn hình và đưa câu hỏi vào mảng chấm điểm
+        container.innerHTML += '<h3 style="color: #1877f2; text-align: center;">--- PART 5 ---</h3>';
+        renderQuestionsOnly(part5Data, container);
+        let fullQuestions = [...part5Data]; 
+        
+        // 2. In Part 6 và gộp câu hỏi
+        container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 6 ---</h3>';
+        renderPassages(part6Data, container);
+        part6Data.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
+        
+        // 3. In Part 7 và gộp câu hỏi
+        container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 7 ---</h3>';
+        renderPassages(part7Data, container);
+        part7Data.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
+
+        // 4. Gán tổng hợp 100 câu vào biến chấm điểm
+        currentActiveQuestions = fullQuestions;
+
+	startTimer(75);
+
+	} else if (type === 'full_listening') {
+            title.innerText = '🔥 Full Listening Test (45 mins) 🔥';
+            
+            // 1. Gộp tổng hợp 100 câu vào mảng chấm điểm
+            let fullListQuestions = [];
+            fullListQuestions = fullListQuestions.concat(part1Data);
+            fullListQuestions = fullListQuestions.concat(part2Data);
+            part3Data.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
+            part4Data.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
+            currentActiveQuestions = fullListQuestions;
+
+            // 2. Render từng Part ra màn hình kèm theo Audio tương ứng
+            // --- PART 1 ---
+            container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 30px;">--- PART 1: PHOTOGRAPHS ---</h3>';
+            renderQuestionsOnly(part1Data, container);
+
+            // --- PART 2 ---
+            container.innerHTML += `
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 30px 0 15px; position: sticky; top: 0; z-index: 10;">
+                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 2: QUESTION-RESPONSE ---</h3>
+                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
+                </div>`;
+            renderQuestionsOnly(part2Data, container);
+
+            // --- PART 3 ---
+            container.innerHTML += `
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
+                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 3: CONVERSATIONS ---</h3>
+                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3" type="audio/mpeg"></audio>
+                </div>`;
+            renderPassages(part3Data, container);
+
+            // --- PART 4 ---
+            container.innerHTML += `
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
+                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 4: TALKS ---</h3>
+                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3" type="audio/mpeg"></audio>
+                </div>`;
+            renderPassages(part4Data, container);
+
+            // 3. Kích hoạt đồng hồ 45 phút
+            startTimer(45);
+        }
+
+    	// Cuối cùng là hiện nút Nộp bài
+    		document.getElementById('submit-section').style.display = 'block';
+}
+
+	// Reset câu hỏi
+	function resetQuiz() {
+    		showModal(
+        		"Làm lại từ đầu?", 
+        		"Fen có chắc muốn làm lại không? Mọi đáp án cũ sẽ bay màu đó nha! 🌪️", 
+        		true, // Tham số true bật chế độ Xác nhận
+        		function() {
+            			startQuiz(currentQuizType);
+            			window.scrollTo(0, 0);
+        		}
+    		);
+	}
+
+        function goHome() {
+            clearInterval(timerInterval);
+
+            // --- CẬP NHẬT: Quét và tắt TẤT CẢ các file audio đang phát trên trang ---
+            const allAudios = document.querySelectorAll('audio');
+            allAudios.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            // -------------------------------------------------------------------
+
+            // Ẩn thanh Sticky Audio (nếu nó đang hiện)
+            const audioContainer = document.getElementById('audio-container');
+            if(audioContainer) audioContainer.style.display = 'none';
+
+            document.getElementById('home-page').style.display = 'block';
+            document.getElementById('quiz-area').style.display = 'none';
+        }
+	
+	// Render các câu hỏi lẻ (Dùng cho Part 5)
+        function renderQuestionsOnly(questions, container) {
+            questions.forEach(item => {
+                container.innerHTML += createQuestionCardHTML(item);
+            });
+        }
+
+        // Render các đoạn văn kèm câu hỏi (Dùng cho Part 6 & 7)
+        function renderPassages(passagesData, container) {
+            passagesData.forEach((passage, pIndex) => {
+                let questionsHtml = '';
+                passage.questions.forEach(item => {
+                    questionsHtml += createQuestionCardHTML(item);
+                });
+
+                container.innerHTML += `
+                    <div class="passage-container">
+                        <div class="passage-title">${passage.title}</div>
+                        <div class="passage-content">${passage.content}</div>
+                        <div class="passage-questions">${questionsHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function createQuestionCardHTML(item) {
+            let optionsHtml = item.opts.map((opt, index) => `
+                <label class="option-label" id="label-q${item.id}-${index}">
+                    <input type="radio" name="q${item.id}" value="${index}">
+                    ${opt}
+                </label>
+            `).join('');
+            let transOptsHtml = item.t_opts.map(tOpt => `<div class="trans-opt">${tOpt}</div>`).join('');
+
+            // Nâng cấp: Tự động chèn ảnh và Audio (nếu có)
+            let mediaHtml = '';
+            if (item.image_src) {
+                mediaHtml += `<img src="${item.image_src}" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
+            }
+            if (item.audio_src) {
+                mediaHtml += `<audio controls style="width: 100%; margin-bottom: 20px; outline: none;"><source src="${item.audio_src}" type="audio/mpeg">Trình duyệt không hỗ trợ.</audio>`;
+            }
+
+            return `
+                <div class="question-card" id="card-${item.id}">
+                    ${mediaHtml}
+                    <div class="question-text">${item.q}</div>
+                    <div class="options">${optionsHtml}</div>
+                    <button class="translate-btn" onclick="toggleTranslation(${item.id})">
+                        👁️ Xem bản dịch
+                    </button>
+                    <div class="translation-text" id="trans-${item.id}">
+                        <div class="trans-q">${item.t_q}</div>
+                        ${transOptsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleTranslation(id) {
+            const transDiv = document.getElementById('trans-' + id);
+            transDiv.classList.toggle('active');
+        }
+
+        // LOGIC CHẤM ĐIỂM
+        function submitQuiz(isTimeOut = false) {
+	    clearInterval(timerInterval); // Nộp bài xong thì dừng đồng hồ lại
+
+            let allAnswered = true;
+            let score = 0;
+            const totalQuestions = currentActiveQuestions.length;
+
+            currentActiveQuestions.forEach(item => {
+                const selected = document.querySelector(`input[name="q${item.id}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    document.getElementById(`card-${item.id}`).style.borderColor = '#e74c3c'; 
+                } else {
+                    document.getElementById(`card-${item.id}`).style.borderColor = '#ced0d4';
+                }
+            });
+
+         // CHỈ CẢNH BÁO NẾU: Chưa làm hết VÀ Không phải do hết giờ ép nộp
+    	if (!allAnswered && !isTimeOut) {
+        	showModal(
+            		"Khoan dừng khoảng chừng là 2s!", 
+            		"Êi fen ơi, hình như còn câu chưa chọn đáp án kìa! Quét lại một vòng xem sao nha 🧐", 
+            		false
+        	);
+        	// Bấm nộp hụt thì cho đồng hồ chạy tiếp
+        	if (currentQuizType === 'full') {
+            		startTimer(timeRemaining / 60); 
+        	}
+        	return; 
+    	}
+
+            currentActiveQuestions.forEach(item => {
+                const selectedInput = document.querySelector(`input[name="q${item.id}"]:checked`);
+                const userAnsValue = parseInt(selectedInput.value);
+                const correctAnsValue = item.ans;
+
+                item.opts.forEach((_, idx) => {
+                    document.getElementById(`label-q${item.id}-${idx}`).classList.add('disabled');
+                });
+
+                // Nếu có chọn đáp án thì mới xét đúng sai
+        	if (selectedInput) {
+            		const userAnsValue = parseInt(selectedInput.value);
+            		if (userAnsValue === correctAnsValue) {
+                		document.getElementById(`label-q${item.id}-${userAnsValue}`).classList.add('correct');
+                		score++;
+            	} else {
+                	document.getElementById(`label-q${item.id}-${userAnsValue}`).classList.add('wrong');
+                	document.getElementById(`label-q${item.id}-${correctAnsValue}`).classList.add('correct');
+            	}
+        } else {
+            	// Nếu bỏ trống (do hết giờ) thì chỉ hiện đáp án đúng
+            	document.getElementById(`label-q${item.id}-${correctAnsValue}`).classList.add('correct');
+        }
+    });
+
+            // SAU KHI CHẤM XONG:
+   	    document.getElementById('btn-submit').style.display = 'none'; // Ẩn nút nộp bài
+    	    document.getElementById('btn-reset').style.display = 'inline-block'; // HIỆN NÚT RESET 🔥
+    
+    	    const scoreDisplay = document.getElementById('score-display');
+    	    scoreDisplay.style.display = 'block';
+            scoreDisplay.innerHTML = `Bạn đã làm đúng được ${score} / ${totalQuestions} câu rồi nha! 🎉`;
+        }
+
+	    	// Hàm hiển thị Popup xịn
+		function showModal(title, message, isConfirm, onConfirm) {
+    			document.getElementById('custom-modal').style.display = 'flex';
+    			document.getElementById('modal-title').innerText = title;
+    			document.getElementById('modal-message').innerText = message;
+    
+    			const btnCancel = document.getElementById('modal-btn-cancel');
+    			const btnConfirm = document.getElementById('modal-btn-confirm');
+    
+    		if (isConfirm) {
+        		// Chế độ xác nhận (Có nút Hủy và Đồng ý)
+        		btnCancel.style.display = 'inline-block';
+        		btnConfirm.innerText = "Chắc chắn 🚀";
+        		btnConfirm.onclick = function() {
+            			closeModal();
+            			if (onConfirm) onConfirm(); // Chạy lệnh bên trong nếu bấm Đồng ý
+       	 		};
+    		} else {
+        		// Chế độ chỉ thông báo (Chỉ có 1 nút Đã hiểu)
+        		btnCancel.style.display = 'none';
+        		btnConfirm.innerText = "Đã hiểu 🫡";
+        		btnConfirm.onclick = closeModal;
+    		}	
+	}
+
+		// Hàm đóng Popup
+		function closeModal() {
+    			document.getElementById('custom-modal').style.display = 'none';
+		}
+
+
+	let timerInterval; // Lưu bộ đếm để còn tắt
+	let timeRemaining = 0; // Thời gian còn lại (tính bằng giây)
+
+	// Hàm bắt đầu đếm ngược
+	function startTimer(minutes) {
+    		clearInterval(timerInterval); // Xóa đồng hồ cũ nếu có
+    		timeRemaining = minutes * 60;
+    		const timerDisplay = document.getElementById('countdown-timer');
+    		timerDisplay.style.display = 'flex';
+    		timerDisplay.classList.remove('time-warning');
+    		updateTimerDisplay();
+
+    		timerInterval = setInterval(() => {
+        		timeRemaining--;
+        		updateTimerDisplay();
+
+        		// Đổi màu chớp tắt khi còn dưới 5 phút (300 giây)
+        		if (timeRemaining <= 300) {
+           	 		timerDisplay.classList.add('time-warning');
+        		}
+
+        		// KHI HẾT GIỜ
+        		if (timeRemaining <= 0) {
+            			clearInterval(timerInterval);
+            			submitQuiz(true); // Ép nộp bài với cờ isTimeOut = true
+            			showModal("Hết giờ rồi fen ơi! ⏰", "Hệ thống đã tự động thu bài và chấm điểm những câu fen đã kịp làm. Cùng xem kết quả nha!", false);
+        		}
+    		}, 1000);
+	}
+
+	// Hàm in thời gian ra màn hình
+	function updateTimerDisplay() {
+    		let m = Math.floor(timeRemaining / 60);
+    		let s = timeRemaining % 60;
+    		document.getElementById('countdown-timer').innerText = `⏳ ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+	}
+    </script>
+	<div id="custom-modal" class="modal-overlay" style="display: none;">
+    		<div class="modal-content">
+        		<h3 id="modal-title">Thông báo</h3>
+        		<p id="modal-message">Nội dung ở đây nè</p>
+        		<div class="modal-actions">
+            			<button id="modal-btn-cancel" class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+            			<button id="modal-btn-confirm" class="btn btn-confirm">Đồng ý</button>
+        		</div>
+    		</div>
+	</div>
+</body>
+</html>
