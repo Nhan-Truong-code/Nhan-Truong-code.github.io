@@ -212,12 +212,97 @@
                 min-width: 0 !important; /* Ép nó không được bung 100% nữa */
             }
 	}
+
+	/* === DARK MODE (CHẾ ĐỘ TỐI) === */
+	body.dark-mode {
+    		background-color: #18191a;
+    		color: #e4e6eb;
+	}
+	/* Đổi màu container và các thẻ card */
+	body.dark-mode .container,
+	body.dark-mode .passage-container,
+	body.dark-mode .question-card,
+	body.dark-mode .modal-content,
+	body.dark-mode .passage-content table {
+    		background-color: #242526;
+    		border-color: #3a3b3c;
+    		color: #e4e6eb;
+	}
+	body.dark-mode .passage-title { background: #2c3e50; }
+	body.dark-mode .passage-content,
+	body.dark-mode .option-label,
+	body.dark-mode .translation-text {
+    		background-color: #3a3b3c;
+    		color: #e4e6eb;
+    		border-color: #555;
+	}
+	/* Đổi màu viền và tiêu đề */
+	body.dark-mode .header-controls { border-bottom-color: #3a3b3c; }
+	body.dark-mode h1, 
+	body.dark-mode #quiz-title, 
+	body.dark-mode .modal-content h3 {
+    		color: #4eb5f1; /* Đổi màu xanh dương cho dịu mắt hơn trên nền đen */
+	}
+	body.dark-mode .trans-q { color: #ff7675; /* Đỏ nhạt dịu mắt */ }
+	
+	/* Hiệu ứng trỏ chuột vào đáp án */
+	body.dark-mode .option-label:hover:not(.disabled) {
+    		background-color: #4e4f50;
+    		border-color: #4eb5f1;
+	}
+	
+	/* Ép màu nền đen cho các thanh Audio Sticky bị hardcode màu xanh */
+	body.dark-mode div[style*="background: #e7f3ff"] {
+    		background: #3a3b3c !important;
+	}
+	
+	/* === NÚT GẠT DARK MODE KIỂU iOS === */
+	.ios-toggle {
+    		width: 64px;
+    		height: 34px;
+    		background-color: #d1d1d6; /* Màu xám sáng chuẩn iOS lúc tắt */
+    		border-radius: 34px;
+    		position: relative;
+    		cursor: pointer;
+    		transition: background-color 0.4s ease;
+    		box-shadow: inset 0 2px 5px rgba(0,0,0,0.15); /* Chiều sâu nhẹ chìm vào trong cho cái khung */
+	}
+
+	.ios-toggle-knob {
+    		width: 28px;
+    		height: 28px;
+    		background-color: #ffffff;
+    		border-radius: 50%;
+    		position: absolute;
+    		top: 3px;
+    		left: 3px;
+    		display: flex;
+    		justify-content: center;
+    		align-items: center;
+    		font-size: 15px;
+    		transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng trượt nảy nảy nhẹ cực mượt */
+    		box-shadow: 0 2px 5px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.1); /* Chiều sâu nổi lên cho nút tròn */
+	}
+
+	/* Khi bật Dark Mode: Khung đổi màu và nút tròn trượt sang phải */
+	body.dark-mode .ios-toggle {
+    		background-color: #1877f2; /* Gạt sang phải thì khung chuyển xanh Facebook rực rỡ */
+	}
+	body.dark-mode .ios-toggle-knob {
+    		transform: translateX(30px); /* Nút tròn chạy 30px sang phải */
+	}
+
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="home-page">
+	    <div style="display: flex; justify-content: flex-end; margin-bottom: -15px; position: relative; z-index: 10;">
+            	<div id="theme-toggle" class="ios-toggle" onclick="toggleTheme()">
+                	<div id="theme-knob" class="ios-toggle-knob">☀️</div>
+            	</div>
+            </div>
             <h1>English Internal Test 🚀</h1>
             <div class="menu-section">
                 <div class="menu-title">📚 Reading Revision</div>
@@ -1128,31 +1213,31 @@
 
             // 2. Render từng Part ra màn hình kèm theo Audio tương ứng
             // --- PART 1 ---
-            container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 30px;">--- PART 1: PHOTOGRAPHS ---</h3>';
+            container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center; margin-top: 30px;">--- PART 1: PHOTOGRAPHS ---</h3>');
             renderQuestionsOnly(part1Data, container);
 
             // --- PART 2 ---
-            container.innerHTML += `
+            container.insertAdjacentHTML('beforeend', `
                 <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 30px 0 15px; position: sticky; top: 0; z-index: 10;">
                     <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 2: QUESTION-RESPONSE ---</h3>
-                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
-                </div>`;
+                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
+                </div>`);
             renderQuestionsOnly(part2Data, container);
 
             // --- PART 3 ---
-            container.innerHTML += `
+            container.insertAdjacentHTML('beforeend', `
                 <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
                     <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 3: CONVERSATIONS ---</h3>
-                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3" type="audio/mpeg"></audio>
-                </div>`;
+                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3" type="audio/mpeg"></audio>
+                </div>`);
             renderPassages(part3Data, container);
 
             // --- PART 4 ---
-            container.innerHTML += `
+            container.insertAdjacentHTML('beforeend', `
                 <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
                     <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 4: TALKS ---</h3>
-                    <audio controls style="width: 100%;"><source src="./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3" type="audio/mpeg"></audio>
-                </div>`;
+                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3" type="audio/mpeg"></audio>
+                </div>`);
             renderPassages(part4Data, container);
 
             // 3. Kích hoạt đồng hồ 45 phút
@@ -1195,22 +1280,26 @@
             document.getElementById('quiz-area').style.display = 'none';
         }
 	
-	// Render các câu hỏi lẻ (Dùng cho Part 5)
+	// Render các câu hỏi lẻ (Dùng cho Part 1, 2, 5)
         function renderQuestionsOnly(questions, container) {
+            let htmlContent = ''; // Tạo 1 cái giỏ rỗng
             questions.forEach(item => {
-                container.innerHTML += createQuestionCardHTML(item);
+                htmlContent += createQuestionCardHTML(item); // Gom hết HTML vào giỏ
             });
+            // In toàn bộ cái giỏ ra màn hình ĐÚNG 1 LẦN
+            container.insertAdjacentHTML('beforeend', htmlContent); 
         }
 
-        // Render các đoạn văn kèm câu hỏi (Dùng cho Part 6 & 7)
+        // Render các đoạn văn kèm câu hỏi (Dùng cho Part 3, 4, 6, 7)
         function renderPassages(passagesData, container) {
+            let htmlContent = '';
             passagesData.forEach((passage, pIndex) => {
                 let questionsHtml = '';
                 passage.questions.forEach(item => {
                     questionsHtml += createQuestionCardHTML(item);
                 });
 
-                container.innerHTML += `
+                htmlContent += `
                     <div class="passage-container">
                         <div class="passage-title">${passage.title}</div>
                         <div class="passage-content">${passage.content}</div>
@@ -1218,6 +1307,7 @@
                     </div>
                 `;
             });
+            container.insertAdjacentHTML('beforeend', htmlContent);
         }
 
         function createQuestionCardHTML(item) {
@@ -1235,7 +1325,8 @@
                 mediaHtml += `<img src="${item.image_src}" style="width: 100%; max-width: 450px; display: block; margin: 0 auto 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
             }
             if (item.audio_src) {
-                mediaHtml += `<audio controls style="width: 100%; margin-bottom: 20px; outline: none;"><source src="${item.audio_src}" type="audio/mpeg">Trình duyệt không hỗ trợ.</audio>`;
+                // Đã thêm preload="none" để điện thoại không bị quá tải bộ nhớ
+                mediaHtml += `<audio controls preload="none" style="width: 100%; margin-bottom: 20px; outline: none;"><source src="${item.audio_src}" type="audio/mpeg">Trình duyệt không hỗ trợ.</audio>`;
             }
 
             return `
@@ -1392,6 +1483,37 @@
     		let s = timeRemaining % 60;
     		document.getElementById('countdown-timer').innerText = `⏳ ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
 	}
+
+	// ==========================================
+	// LOGIC DARK MODE & LOCAL STORAGE (BẢN iOS)
+	// ==========================================
+	function toggleTheme() {
+    		const body = document.body;
+    		const knob = document.getElementById('theme-knob');
+    		body.classList.toggle('dark-mode');
+    
+    		if (body.classList.contains('dark-mode')) {
+        		// Chuyển sang Giao diện Tối
+        		knob.innerHTML = '🌑';
+        		localStorage.setItem('toeic_theme', 'dark');
+    		} else {
+        		// Chuyển về Giao diện Sáng
+        		knob.innerHTML = '☀️';
+        		localStorage.setItem('toeic_theme', 'light');
+    		}
+	}
+
+	// Tự động kiểm tra và áp dụng chế độ khi vừa load xong trang
+	window.addEventListener('DOMContentLoaded', () => {
+    		if (localStorage.getItem('toeic_theme') === 'dark') {
+        		document.body.classList.add('dark-mode');
+        		const knob = document.getElementById('theme-knob');
+        		if (knob) {
+            			knob.innerHTML = '🌑';
+        		}
+    		}
+	});
+
     </script>
 	<div id="custom-modal" class="modal-overlay" style="display: none;">
     		<div class="modal-content">
