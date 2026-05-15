@@ -298,6 +298,28 @@
     		background-color: #2a2b2c !important;
 	}
 
+	/* Ép màu chuẩn Dark Mode cho đáp án ĐÚNG và SAI khi nộp bài */
+	body.dark-mode .option-label.correct {
+    		background-color: #155724 !important; /* Nền xanh lá đậm dịu mắt */
+    		border-color: #28a745 !important;
+    		color: #d4edda !important; /* Chữ màu xanh mint sáng */
+	}
+
+	body.dark-mode .option-label.wrong {
+    		background-color: #5c161d !important; /* Nền đỏ đô sẫm */
+    		border-color: #dc3545 !important;
+    		color: #f8d7da !important; /* Chữ màu hồng nhạt */
+	}
+
+	/* === CHẾ ĐỘ THI THẬT (FULL TEST MODE) === */
+	/* Khóa toàn bộ tính năng dịch thuật */
+	#quiz-area.is-exam-mode .translate-btn {
+    		display: none !important;
+	}
+	#quiz-area.is-exam-mode .translation-text {
+    		display: none !important;
+	}
+
     </style>
 </head>
 <body>
@@ -1078,6 +1100,48 @@
             }
         ];
 
+	// ==========================================
+	// THUẬT TOÁN XÁO TRỘN ĐÁP ÁN (CHỐNG HỌC VẸT)
+	// ==========================================
+	
+	// Hàm xáo trộn mảng chuẩn Fisher-Yates
+	function shuffleArray(array) {
+    		for (let i = array.length - 1; i > 0; i--) {
+        		const j = Math.floor(Math.random() * (i + 1));
+        		[array[i], array[j]] = [array[j], array[i]];
+    		}
+    		return array;
+	}
+
+	// Hàm xáo trộn đáp án cho 1 câu hỏi (giữ nguyên gốc)
+	function shuffleQuestionOptions(item) {
+    		let clonedItem = JSON.parse(JSON.stringify(item)); // Nhân bản để không hư Data gốc
+    		let optionsObj = clonedItem.opts.map((opt, idx) => ({
+        		text: opt.replace(/^\([A-D]\)\s*/, ''), // Cắt chữ (A), (B)...
+        		trans: clonedItem.t_opts ? clonedItem.t_opts[idx].replace(/^\([A-D]\)\s*/, '') : "",
+        		isCorrect: idx === clonedItem.ans // Đánh dấu thằng nào là đáp án đúng
+    		}));
+
+    		shuffleArray(optionsObj); // Xáo trộn
+
+    		const prefixes = ["(A) ", "(B) ", "(C) ", "(D) "];
+    		optionsObj.forEach((obj, idx) => {
+        		clonedItem.opts[idx] = prefixes[idx] + obj.text; // Ráp lại tiền tố
+        		if (clonedItem.t_opts) clonedItem.t_opts[idx] = prefixes[idx] + obj.trans;
+        		if (obj.isCorrect) clonedItem.ans = idx; // Cập nhật lại vị trí đáp án đúng
+    		});
+    		return clonedItem;
+	}
+
+	// Hàm xáo trộn cho các đoạn văn (Part 3, 4, 6, 7)
+	function shufflePassages(passagesData) {
+    		return passagesData.map(passage => {
+        		let clonedPassage = JSON.parse(JSON.stringify(passage));
+        		clonedPassage.questions = clonedPassage.questions.map(shuffleQuestionOptions);
+        		return clonedPassage;
+    		});
+	}
+
         let currentActiveQuestions = []; 
 
         function startQuiz(type) {
@@ -1088,6 +1152,7 @@
     
     		document.getElementById('home-page').style.display = 'none';
     		document.getElementById('quiz-area').style.display = 'block';
+		document.getElementById('quiz-area').classList.remove('is-exam-mode');
     
     		// Reset trạng thái các nút ở cuối
     		document.getElementById('submit-section').style.display = 'block';
@@ -1183,72 +1248,72 @@
         renderPassages(part7Data, container);
         
     } else if (type === 'full') {
-        // === LOGIC CHO FULL TEST ===
-        title.innerText = '🔥 Full Test: Reading Revision 🔥';
-        
-        // 1. In Part 5 ra màn hình và đưa câu hỏi vào mảng chấm điểm
-        container.innerHTML += '<h3 style="color: #1877f2; text-align: center;">--- PART 5 ---</h3>';
-        renderQuestionsOnly(part5Data, container);
-        let fullQuestions = [...part5Data]; 
-        
-        // 2. In Part 6 và gộp câu hỏi
-        container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 6 ---</h3>';
-        renderPassages(part6Data, container);
-        part6Data.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
-        
-        // 3. In Part 7 và gộp câu hỏi
-        container.innerHTML += '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 7 ---</h3>';
-        renderPassages(part7Data, container);
-        part7Data.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
+         document.getElementById('quiz-area').classList.add('is-exam-mode'); // Bật khóa Dịch thuật
+         title.innerText = '🔥 Full Test: Reading Revision 🔥';
 
-        // 4. Gán tổng hợp 100 câu vào biến chấm điểm
-        currentActiveQuestions = fullQuestions;
+         // Xáo trộn Data
+         let shuffledPart5 = part5Data.map(shuffleQuestionOptions);
+         let shuffledPart6 = shufflePassages(part6Data);
+         let shuffledPart7 = shufflePassages(part7Data);
 
-	startTimer(75);
+         let fullQuestions = [...shuffledPart5]; 
 
-	} else if (type === 'full_listening') {
-            title.innerText = '🔥 Full Listening Test (45 mins) 🔥';
-            
-            // 1. Gộp tổng hợp 100 câu vào mảng chấm điểm
-            let fullListQuestions = [];
-            fullListQuestions = fullListQuestions.concat(part1Data);
-            fullListQuestions = fullListQuestions.concat(part2Data);
-            part3Data.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
-            part4Data.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
-            currentActiveQuestions = fullListQuestions;
+         container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center;">--- PART 5 ---</h3>');
+         renderQuestionsOnly(shuffledPart5, container);
 
-            // 2. Render từng Part ra màn hình kèm theo Audio tương ứng
-            // --- PART 1 ---
-            container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center; margin-top: 30px;">--- PART 1: PHOTOGRAPHS ---</h3>');
-            renderQuestionsOnly(part1Data, container);
+         container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 6 ---</h3>');
+         renderPassages(shuffledPart6, container);
+         shuffledPart6.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
 
-            // --- PART 2 ---
-            container.insertAdjacentHTML('beforeend', `
-                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 30px 0 15px; position: sticky; top: 0; z-index: 10;">
-                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 2: QUESTION-RESPONSE ---</h3>
-                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
-                </div>`);
-            renderQuestionsOnly(part2Data, container);
+         container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center; margin-top: 40px;">--- PART 7 ---</h3>');
+         renderPassages(shuffledPart7, container);
+         shuffledPart7.forEach(passage => { fullQuestions = fullQuestions.concat(passage.questions); });
 
-            // --- PART 3 ---
-            container.insertAdjacentHTML('beforeend', `
-                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
-                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 3: CONVERSATIONS ---</h3>
-                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3" type="audio/mpeg"></audio>
-                </div>`);
-            renderPassages(part3Data, container);
+         currentActiveQuestions = fullQuestions;
+         startTimer(75);
 
-            // --- PART 4 ---
-            container.insertAdjacentHTML('beforeend', `
-                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
-                    <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 4: TALKS ---</h3>
-                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3" type="audio/mpeg"></audio>
-                </div>`);
-            renderPassages(part4Data, container);
+   } else if (type === 'full_listening') {
+         document.getElementById('quiz-area').classList.add('is-exam-mode'); // Bật khóa Dịch thuật
+         title.innerText = '🔥 Full Listening Test (45 mins) 🔥';
 
-            // 3. Kích hoạt đồng hồ 45 phút
-            startTimer(45);
-        }
+         // Xáo trộn Part 3, 4 (Part 1, 2 giữ nguyên theo file Audio)
+         let shuffledPart3 = shufflePassages(part3Data);
+         let shuffledPart4 = shufflePassages(part4Data);
+
+         let fullListQuestions = [];
+         fullListQuestions = fullListQuestions.concat(part1Data);
+         fullListQuestions = fullListQuestions.concat(part2Data);
+         shuffledPart3.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
+         shuffledPart4.forEach(p => { fullListQuestions = fullListQuestions.concat(p.questions); });
+         currentActiveQuestions = fullListQuestions;
+
+         // Render
+         container.insertAdjacentHTML('beforeend', '<h3 style="color: #1877f2; text-align: center; margin-top: 30px;">--- PART 1: PHOTOGRAPHS ---</h3>');
+         renderQuestionsOnly(part1Data, container);
+
+         container.insertAdjacentHTML('beforeend', `
+             <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 30px 0 15px; position: sticky; top: 0; z-index: 10;">
+                 <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 2: QUESTION-RESPONSE ---</h3>
+                 <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
+             </div>`);
+         renderQuestionsOnly(part2Data, container);
+
+         container.insertAdjacentHTML('beforeend', `
+             <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
+                 <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 3: CONVERSATIONS ---</h3>
+                 <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 3/DGNLNNCDRNB_23.05.2026 - Part 3.mp3" type="audio/mpeg"></audio>
+             </div>`);
+         renderPassages(shuffledPart3, container);
+
+         container.insertAdjacentHTML('beforeend', `
+             <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 40px 0 15px; position: sticky; top: 0; z-index: 10;">
+                 <h3 style="margin-top:0; color: #1877f2; text-align: center;">--- PART 4: TALKS ---</h3>
+                 <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 4/DGNLNNCDRNB_23.05.2026 - Part 4.mp3" type="audio/mpeg"></audio>
+             </div>`);
+         renderPassages(shuffledPart4, container);
+
+         startTimer(45);
+     }
 
     	// Cuối cùng là hiện nút Nộp bài
     		document.getElementById('submit-section').style.display = 'block';
