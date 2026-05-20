@@ -1145,6 +1145,7 @@
         let currentActiveQuestions = []; 
 
         function startQuiz(type) {
+		isSubmitted = false; // Reset lại cờ mỗi khi làm bài mới
     		currentQuizType = type; // Lưu lại loại quiz khi bắt đầu
 
 		clearInterval(timerInterval); // Reset đồng hồ mỗi khi chuyển trang
@@ -1333,22 +1334,44 @@
 	}
 
         function goHome() {
+            // Kiểm tra xem có bất kỳ câu nào đã được chọn đáp án chưa
+            const hasSelectedAnswers = document.querySelectorAll('input[type="radio"]:checked').length > 0;
+
+            // Nếu CHƯA nộp bài VÀ ĐÃ chọn ít nhất 1 đáp án -> Bật khiên cảnh báo
+            if (!isSubmitted && hasSelectedAnswers) {
+                showModal(
+                    "Thoát bài thi? 🏃💨", 
+                    "Bạn có chắc chắn muốn thoát bài đang làm hiện tại không? Mọi đáp án sẽ mất sạch đó nha!", 
+                    true, // Bật chế độ 2 nút Hủy / Xác nhận
+                    function() {
+                        executeGoHome(); // Bấm xác nhận thì mới chạy hàm về nhà
+                    }
+                );
+            } else {
+                // Nếu chưa chọn câu nào HOẶC đã nộp bài có điểm rồi -> Về thẳng không nói nhiều
+                executeGoHome();
+            }
+        }
+
+        // Hàm chứa logic gốc để quay về trang chủ
+        function executeGoHome() {
             clearInterval(timerInterval);
 
-            // --- CẬP NHẬT: Quét và tắt TẤT CẢ các file audio đang phát trên trang ---
+            // Tắt nhạc đang phát
             const allAudios = document.querySelectorAll('audio');
             allAudios.forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
             });
-            // -------------------------------------------------------------------
-
-            // Ẩn thanh Sticky Audio (nếu nó đang hiện)
             const audioContainer = document.getElementById('audio-container');
             if(audioContainer) audioContainer.style.display = 'none';
 
+            // Chuyển giao diện
             document.getElementById('home-page').style.display = 'block';
             document.getElementById('quiz-area').style.display = 'none';
+            
+            // Xóa bỏ chế độ thi thật (để hiện lại nút Dịch thuật nếu vừa làm Full Test xong)
+            document.getElementById('quiz-area').classList.remove('is-exam-mode');
         }
 	
 	// Render các câu hỏi lẻ (Dùng cho Part 1, 2, 5)
@@ -1453,8 +1476,16 @@
         	return; 
     	}
 
-            currentActiveQuestions.forEach(item => {
-                const selectedInput = document.querySelector(`input[name="q${item.id}"]:checked`);
+	// CHỈ CẢNH BÁO NẾU: Chưa làm hết VÀ Không phải do hết giờ ép nộp
+        if (!allAnswered && !isTimeOut) {
+            // ... (code showModal cảnh báo giữ nguyên)
+            return; 
+        }
+
+	isSubmitted = true; // Lật cờ thành true vì bài CHẮC CHẮN đã được chấm điểm
+
+        currentActiveQuestions.forEach(item => {
+           	const selectedInput = document.querySelector(`input[name="q${item.id}"]:checked`);
                 const userAnsValue = parseInt(selectedInput.value);
                 const correctAnsValue = item.ans;
 
@@ -1517,7 +1548,7 @@
     			document.getElementById('custom-modal').style.display = 'none';
 		}
 
-
+	let isSubmitted = false; // Cờ theo dõi trạng thái nộp bài
 	let timerInterval; // Lưu bộ đếm để còn tắt
 	let timeRemaining = 0; // Thời gian còn lại (tính bằng giây)
 
