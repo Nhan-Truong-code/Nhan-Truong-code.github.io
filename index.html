@@ -345,7 +345,7 @@
                 <div class="menu-title">🎧 Listening Revision</div>
                 <div class="btn-group">
                     <button class="btn" onclick="startQuiz('part1')">Part 1 (Q1-6)</button>
-                    <button class="btn" onclick="startQuiz('part2')">Part 2 (Q7-31)</button>
+                    <button class="btn" onclick="openPart2Modal()">Part 2 (Q7 - Q31)</button>
                     <button class="btn" onclick="startQuiz('part3')">Part 3 (Q32-70)</button>
                     <button class="btn" onclick="startQuiz('part4')">Part 4 (Q71-100)</button>
                     <button class="btn btn-full" onclick="startQuiz('full_listening')">🔥 Do Full Listening Test</button>	
@@ -850,11 +850,8 @@
 		       q: "6. Look at the picture marked number 6 in your test book.", opts: ["(A)", "(B)", "(C)", "(D)"], ans: 2, t_q: "6. Nhìn vào bức tranh số 6.", t_opts: ["(A) Dịch 		       A", "(B) Dịch B", "(C) Dịch C", "(D) Dịch D"] }
         ];
 	
-	// ==========================================
+        // ==========================================
         // DATA LISTENING - PART 2 (Câu 7 - 31) 
-        // ==========================================
-        // ==========================================
-        // DATA LISTENING - PART 2 (Câu 7 - 31) - BẢN FULL TEXT
         // ==========================================
         const part2Data = [
             { id: 107, q: "7. Who designed the model of the new fax machine?", opts: ["(A) The price doesn't include the sales tax.", "(B) One of our product designers.", "(C) Yes, he resigned last month."], ans: 1, t_q: "7. Ai đã thiết kế mẫu của chiếc máy fax mới vậy?", t_opts: ["(A) Giá này chưa bao gồm thuế bán hàng.", "(B) Một trong những nhà thiết kế sản phẩm của chúng ta.", "(C) Vâng, anh ấy đã từ chức hồi tháng trước."] },
@@ -883,6 +880,26 @@
             { id: 130, q: "30. Do you know why the drug store is closed today?", opts: ["(A) You need a doctor's prescription.", "(B) I heard it is being renovated.", "(C) To San Francisco for business."], ans: 1, t_q: "30. Bạn có biết tại sao hiệu thuốc lại đóng cửa hôm nay không?", t_opts: ["(A) Bạn cần đơn thuốc của bác sĩ.", "(B) Tôi nghe nói nó đang được sửa chữa.", "(C) Tới San Francisco để đi công tác."] },
             { id: 131, q: "31. Most of the expenses of our company come from frequent business trips abroad.", opts: ["(A) Yes, I think she's a good travel agent.", "(B) It is one of the most expensive cities in the world.", "(C) Then, we should reduce business travel budgets."], ans: 2, t_q: "31. Phần lớn chi phí của công ty chúng ta đến từ các chuyến công tác nước ngoài thường xuyên.", t_opts: ["(A) Vâng, tôi nghĩ cô ấy là một đại lý du lịch giỏi.", "(B) Đây là một trong những thành phố đắt đỏ nhất trên thế giới.", "(C) Vậy thì, chúng ta nên cắt giảm ngân sách cho các chuyến đi công tác."] }
         ];
+
+	// ==========================================
+        // LOGIC POPUP CHỌN CHẾ ĐỘ PART 2
+        // ==========================================
+        function openPart2Modal() {
+            document.getElementById('part2-mode-modal').style.display = 'flex';
+        }
+
+        function closePart2Modal() {
+            document.getElementById('part2-mode-modal').style.display = 'none';
+        }
+
+        function startPart2(mode) {
+            closePart2Modal(); // Tắt popup đi
+            if (mode === 'study') {
+                startQuiz('part2_study');
+            } else {
+                startQuiz('part2_exam');
+            }
+        }
 
 	// ==========================================
         // DATA LISTENING - PART 3 (Câu 32 - 70) 
@@ -1190,17 +1207,36 @@
             currentActiveQuestions = part1Data;
             renderQuestionsOnly(part1Data, container);
 
-	} else if (type === 'part2') {
-            title.innerText = 'Part 2: Question-Response';
+	} else if (type === 'part2_study') {
+            document.getElementById('quiz-area').classList.remove('is-exam-mode'); // Mở khóa Dịch thuật
+            title.innerText = 'Part 2: Question-Response (Chế độ Học)';
             currentActiveQuestions = part2Data;
-            renderQuestionsOnly(part2Data, container);
             
-            // Bật thanh Sticky Audio và load file âm thanh cho Part 2
-            if(audioContainer) {
-                audioContainer.style.display = 'block';
-                audioSource.src = "./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3"; // Tên file audio local của fen
-                audioPlayer.load(); // Bắt buộc phải có dòng này để trình duyệt nhận file mới
-            }
+            container.insertAdjacentHTML('beforeend', `
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 0 0 15px; position: sticky; top: 0; z-index: 10;">
+                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
+                </div>`);
+            renderQuestionsOnly(part2Data, container);
+
+        } else if (type === 'part2_exam') {
+            document.getElementById('quiz-area').classList.add('is-exam-mode'); // Bật khóa Dịch thuật
+            title.innerText = 'Part 2: Question-Response (Chế độ Thi)';
+            
+            // Xử lý che mắt Part 2
+            let hiddenPart2 = part2Data.map(item => {
+                let clone = JSON.parse(JSON.stringify(item));
+                clone.q = clone.q.split('.')[0] + ". Mark your answer on your answer sheet.";
+                clone.opts = ["(A)", "(B)", "(C)"]; 
+                return clone;
+            });
+            
+            currentActiveQuestions = hiddenPart2;
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 0 0 15px; position: sticky; top: 0; z-index: 10;">
+                    <audio controls preload="none" style="width: 100%;"><source src="./assets/audio/Part 2/DGNLNNCDRNB_23.05.2026 - Part 2.mp3" type="audio/mpeg"></audio>
+                </div>`);
+            renderQuestionsOnly(hiddenPart2, container);
 
 	} else if (type === 'part3') {
             title.innerText = 'Part 3: Conversations';
@@ -1639,5 +1675,18 @@
         		</div>
     		</div>
 	</div>
+
+	<div id="part2-mode-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            <h3 style="color: #1877f2; margin-top: 0;">Chọn chế độ Part 2 🎧</h3>
+            <p style="margin-bottom: 20px;">Fen muốn luyện tập theo kiểu nào nè?</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn" style="background: #1877f2; border: none; padding: 12px; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;" onclick="startPart2('study')">📖 Chế độ Học (Hiện Full Text & Dịch)</button>
+                <button class="btn" style="background: #e67e22; border: none; padding: 12px; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;" onclick="startPart2('exam')">🛑 Chế độ Thi (Giấu Text, giống thi thật)</button>
+                <button class="btn" style="background: #95a5a6; border: none; padding: 10px; border-radius: 8px; color: white; cursor: pointer;" onclick="closePart2Modal()">Thoát</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
